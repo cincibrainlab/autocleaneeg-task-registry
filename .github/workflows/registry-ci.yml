@@ -1,0 +1,37 @@
+name: Registry CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate registry entries
+        run: python scripts/validate_registry.py
+
+      - name: Stamp registry commit hash
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: python scripts/stamp_registry_commit.py
+
+      - name: Commit updated registry hash
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: chore: stamp registry commit hash
+          file_pattern: registry.json
