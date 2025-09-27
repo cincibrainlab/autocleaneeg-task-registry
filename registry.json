@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "commit": "<filled-by-CI-or-manually>",
+  "tasks": [
+    {"name": "RestingState_BasicWavelet", "path": "tasks/resting/RestingState_BasicWavelet.py"}
+  ]
+}
