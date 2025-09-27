@@ -17,6 +17,10 @@
     {
       "name": "MMN_Standard",
       "path": "tasks/auditory/MMN_Standard.py"
+    },
+    {
+      "name": "RestingEyesQuickCheck",
+      "path": "tasks/resting/RestingEyesQuickCheck.py"
     }
   ]
 }
