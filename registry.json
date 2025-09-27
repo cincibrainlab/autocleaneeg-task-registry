@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "commit": "<filled-by-CI-or-manually>",
+  "commit": "local-snapshot",
   "tasks": [
     {
       "name": "RestingEyesOpen",
