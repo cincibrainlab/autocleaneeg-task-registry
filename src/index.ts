@@ -8,8 +8,8 @@ import type { Env } from "./types";
 const router = Router();
 
 router.options("*", (request: Request, env: Env) => handleOptions(request, env));
-router.get("/library/index", handleLibraryIndex);
-router.post("/publish", handlePublish);
+router.get("/library/index", (request: Request, env: Env, ctx: ExecutionContext) => handleLibraryIndex(request, env, ctx));
+router.post("/publish", (request: Request, env: Env, ctx: ExecutionContext) => handlePublish(request, env, ctx));
 router.all("*", (request: Request, env: Env) =>
   errorResponse(request, env, 404, "Not found"),
 );
@@ -17,7 +17,8 @@ router.all("*", (request: Request, env: Env) =>
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     try {
-      const response = await router.handle(request, env, ctx);
+      // Pass all parameters to router.fetch for itty-router v5
+      const response = await router.fetch(request, env, ctx);
       if (!response) {
         return errorResponse(request, env, 404, "Not found");
       }
