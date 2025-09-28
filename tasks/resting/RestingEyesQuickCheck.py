@@ -46,6 +46,7 @@ config = {
                 "line_noise",
             ],
             "ic_rejection_threshold": 0.3,
+            "psd_fmax": 45.0,
         },
     },
     "epoch_settings": {

@@ -41,6 +41,7 @@ config = {
                 "line_noise",
             ],
             "ic_rejection_threshold": 0.3,
+            "psd_fmax": 80.0,  # Cap PSD visuals within the standard ICVision band
         },
     },
     "epoch_settings": {

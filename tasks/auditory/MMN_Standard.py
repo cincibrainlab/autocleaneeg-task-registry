@@ -41,6 +41,7 @@ config = {
                 "line_noise",
             ],
             "ic_rejection_threshold": 0.28,
+            "psd_fmax": 40.0,  # Align PSD plots with band-limited filtering
         },
     },
     "epoch_settings": {

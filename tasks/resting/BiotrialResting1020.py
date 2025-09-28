@@ -163,15 +163,17 @@ class BiotrialResting1020(Task):
         # ICA processing
         self.run_ica()
         
-        # ICA component classification with psd_fmax from config
-        # Extract psd_fmax from the nested ICLabel configuration
-        
-        psd_fmax = self.settings.get('ICLabel', {}).get('value', {}).get('psd_fmax')
-        
+        # ICA component classification with psd_fmax from component_rejection config
+        psd_fmax = (
+            self.settings.get('component_rejection', {})
+            .get('value', {})
+            .get('psd_fmax')
+        )
+
         self.classify_ica_components(
             method='iclabel',
             reject=True,  # Will use rejection settings from config
-            psd_fmax=psd_fmax  # Pass the frequency limit (40.0 from config)
+            psd_fmax=psd_fmax  # Pass the frequency limit defined in config (45 Hz)
         )
         
         # Drop EOG channels after ICA processing
