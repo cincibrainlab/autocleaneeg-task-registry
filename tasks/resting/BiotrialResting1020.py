@@ -40,7 +40,7 @@ config = {
         'enabled': True,
         'value': {
             'eog_indices': [31, 32],
-            'eog_drop': None
+            'eog_drop': True
         }
     },
     'trim_step': {
