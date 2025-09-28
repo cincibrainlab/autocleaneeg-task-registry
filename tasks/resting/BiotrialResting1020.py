@@ -19,7 +19,6 @@ from autoclean.core.task import Task
 # =============================================================================
 
 config = {
-'dataset_name': "BiotrialResting1020",
     'resample_step': {
         'enabled': True,
         'value': 256
@@ -39,7 +38,10 @@ config = {
     },
     'eog_step': {
         'enabled': True,
-        'value': [31, 32]
+        'value': {
+            'eog_indices': [31, 32],
+            'eog_drop': True
+        }
     },
     'trim_step': {
         'enabled': True,
@@ -74,6 +76,7 @@ config = {
     },
     'component_rejection': {
         'enabled': True,
+        'method': 'iclabel',
         'value': {
             'ic_flags_to_reject': ['muscle', 'heart', 'eog', 'ch_noise', 'line_noise'],
             'ic_rejection_threshold': 0.3,
