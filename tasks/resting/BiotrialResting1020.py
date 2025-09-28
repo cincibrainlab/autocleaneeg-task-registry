@@ -19,6 +19,7 @@ from autoclean.core.task import Task
 # =============================================================================
 
 config = {
+    'schema_version': '2025.09',
     'resample_step': {
         'enabled': True,
         'value': 256

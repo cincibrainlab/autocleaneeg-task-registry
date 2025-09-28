@@ -25,6 +25,10 @@
     {
       "name": "BiotrialResting1020",
       "path": "tasks/resting/BiotrialResting1020.py"
+    },
+    {
+      "name": "RestingState_WaveletOnly",
+      "path": "tasks/resting/RestingState_WaveletOnly.py"
     }
   ]
 }

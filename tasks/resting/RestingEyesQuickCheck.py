@@ -10,6 +10,7 @@ from autoclean.core.task import Task
 # Focus on a quick sanity sweep with minimal processing so technicians can
 # verify signal quality before a full acquisition.
 config = {
+    "schema_version": "2025.09",
     "montage": {"enabled": True, "value": "GSN-HydroCel-129"},
     "move_flagged_files": False,
     "resample_step": {"enabled": True, "value": 200},

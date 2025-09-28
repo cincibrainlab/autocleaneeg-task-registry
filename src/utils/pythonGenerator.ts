@@ -2,6 +2,8 @@
  * Generates a Python task file from configuration
  */
 
+const SCHEMA_VERSION = "2025.09";
+
 function formatValue(value: any, indent: number = 0): string {
   const spaces = ' '.repeat(indent);
 
@@ -59,8 +61,13 @@ export function generatePythonTask(taskName: string, config: any): string {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join('');
 
+  const configWithVersion = {
+    schema_version: SCHEMA_VERSION,
+    ...config,
+  };
+
   // Format the config dictionary
-  const configEntries = Object.entries(config).map(([key, value]) => {
+  const configEntries = Object.entries(configWithVersion).map(([key, value]) => {
     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
       return `    '${key}': ${formatValue(value, 4)}`;
     } else {
