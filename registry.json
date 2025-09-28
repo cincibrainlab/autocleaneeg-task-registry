@@ -21,6 +21,10 @@
     {
       "name": "RestingEyesQuickCheck",
       "path": "tasks/resting/RestingEyesQuickCheck.py"
+    },
+    {
+      "name": "BiotrialResting1020",
+      "path": "tasks/resting/BiotrialResting1020.py"
     }
   ]
 }
