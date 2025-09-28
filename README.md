@@ -1,70 +1,94 @@
 # autocleaneeg-task-registry
 
-Task registry for the AutoCleanEEG pipeline. Provides standardized task definitions and metadata for EEG experiments.
+Public registry of EEG task templates for the AutocleanEEG pipeline. This repo is the source of truth for the Task Wizard web app and the `autocleaneeg-pipeline` CLI.
 
-## Structure
+## Who this is for
+
+- **Scientists and analysts** who want to start from lab-approved templates, publish new tasks, or install tasks locally.
+- **Maintainers** who operate the Task Wizard backend or review incoming templates.
+
+## Quick start for scientists
+
+1. **Open the Task Wizard** → <https://taskwizard.autocleaneeg.org>
+2. **Pick a template** from Step 1 (the list mirrors `registry.json`).
+3. Configure, preview, and optionally download the generated Python file.
+4. When ready, use the **Publish to Task Registry** panel in Step 9:
+   - `Validate (Dry Run)` first to make sure the task passes naming and schema checks.
+   - Toggle off dry run and hit `Publish to Registry` to open a GitHub pull request via the wizard.
+5. After the PR is merged, install the task locally:
+
+   ```bash
+   autocleaneeg-pipeline task library update
+   autocleaneeg-pipeline task library install <TaskName>
+   ```
+
+   Replace `<TaskName>` with the PascalCase name you published.
+
+## Repository layout
 
 ```
-├── README.md
-├── registry.json              # Task index (name -> path mapping)
-└── tasks/                     # Task definitions organized by category
-    ├── resting/
-    ├── auditory/
-    └── ...
+├── registry.json          # Index of all published tasks (name/path pairs)
+├── tasks/                 # Task implementations organised by category
+│   ├── resting/
+│   ├── auditory/
+│   └── …
+└── src/                   # Cloudflare Worker powering the Task Wizard API
 ```
 
-## Built-in Tasks
+## Publishing a task
 
-Currently the registry exposes the same built-in templates that ship with the pipeline package:
+### Preferred path (Task Wizard)
 
-| Task | Category | Notes |
-| ---- | -------- | ----- |
-| `RestingEyesOpen`  | resting  | Baseline resting-state configuration tuned for eyes-open EEG |
-| `RestingEyesClosed`| resting  | Variant for eyes-closed recordings with identical preprocessing stages |
-| `ASSR_40Hz`        | auditory | Auditory steady-state response paradigm |
-| `MMN_Standard`     | auditory | Classic mismatch negativity paradigm |
+1. Complete your configuration in the wizard.
+2. Fill out the publish form (task name, category, optional summary, GitHub handle).
+3. Run a dry run to confirm validation succeeds.
+4. Publish; reviewers receive a pull request with your generated task and metadata.
 
-> The `commit` field in `registry.json` is intentionally left as a placeholder. A lightweight CI job can stamp it with the merge commit hash to keep local caches traceable.
+### Manual path (expert users)
 
-## Usage
+1. Add `tasks/<category>/<TaskName>.py` (PascalCase, matches class name).
+2. Add `{ "name": "TaskName", "path": "tasks/<category>/<TaskName>.py" }` to `registry.json` (keep entries alphabetised).
+3. Run `npm run check && npm test`.
+4. Open a GitHub PR targeting `main`.
 
-The `registry.json` file provides a simple index of all available tasks with their paths. Each task is implemented as a Python module in the `tasks/` directory.
+## Installing and using tasks locally
 
-## Task Wizard Backend
+- Update the local registry snapshot: `autocleaneeg-pipeline task library update`
+- List tasks: `autocleaneeg-pipeline task library list`
+- Install a task: `autocleaneeg-pipeline task library install <TaskName>`
 
-This repository also ships a Cloudflare Worker that powers the Task Wizard → Registry integration. The service is defined in `src/` and exposed via `wrangler.toml`.
+The CLI will download the task file from this repository and place it in your project’s task library.
+
+## Maintainer notes (Cloudflare Worker)
+
+The Task Wizard backend lives in `src/` and is deployed as a Cloudflare Worker.
 
 - Install dependencies: `npm install`
-- Start a local worker (requires Cloudflare secrets): `npm run dev`
-- Run unit tests: `npm test`
-- Type-check: `npm run check`
+- Type check: `npm run check`
+- Unit tests: `npm test`
+- Deploy: `npx wrangler deploy`
 
-### Environment
+### Required environment/secret variables
 
-Set the following variables in Cloudflare (or via `wrangler secret`/`--var` when running locally):
-
-| Variable | Description |
+| Variable | Purpose |
 | --- | --- |
-| `REGISTRY_OWNER` | GitHub organization or user for the registry (`cincibrainlab`) |
-| `REGISTRY_REPO` | Repository name (`autocleaneeg-task-registry`) |
-| `REGISTRY_DEFAULT_BRANCH` | Base branch for pull requests (usually `main`) |
-| `ALLOWED_ORIGINS` | Comma-separated list of origins allowed to call the API |
-| `CACHE_TTL_SECONDS` | Cache duration for `/library/index` responses |
-| `GITHUB_APP_ID` | GitHub App identifier |
-| `GITHUB_INSTALLATION_ID` | Installation ID covering the registry repo |
-| `GITHUB_PRIVATE_KEY` | Base64-encoded or PEM private key for the app |
-| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | OAuth identifiers for user sign-in |
-| `SESSION_SECRET` | Secret for signing wizard sessions (if using session storage) |
+| `REGISTRY_OWNER`, `REGISTRY_REPO`, `REGISTRY_DEFAULT_BRANCH` | GitHub repo metadata |
+| `ALLOWED_ORIGINS` | Comma-separated list of trusted Task Wizard origins; wildcard suffixes are handled in code |
+| `CACHE_TTL_SECONDS` | Cache lifetime for `/library/index` |
+| `GITHUB_APP_ID`, `GITHUB_INSTALLATION_ID`, `GITHUB_PRIVATE_KEY` | Credentials for the Task Wizard GitHub App |
+| `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` | OAuth values if user sign-in is enabled |
+| `SESSION_SECRET` | Optional session signing secret |
 
-### Endpoints
+### API endpoints
 
-- `GET /library/index` — Returns the latest `registry.json` (with short-lived caching).
-- `POST /publish` — Accepts a task payload and opens a GitHub pull request via the Task Wizard app. Supports a `dryRun` flag for validation-only checks.
+- `GET /library/index` – returns the current `registry.json` with caching and CORS.
+- `POST /publish` – validates payloads and opens PRs (supports `dryRun`).
+- `POST /export/python` – generates a Python task server-side for the wizard’s download button.
 
-## Adding New Tasks
+### CORS
 
-1. Create a new Python file in the appropriate category folder.
-2. Add the task entry to `registry.json` (matching name and relative path).
-3. Implement the task following the standard task interface.
+The worker allows the production domain (`https://taskwizard.autocleaneeg.org`) and any Cloudflare Pages preview that ends with `.autoclean-configwizard.pages.dev`. Add additional origins via `ALLOWED_ORIGINS` if you spin up new environments.
 
-Downstream tooling (e.g. `autocleaneeg-pipeline task builtins install RestingEyesOpen`) consumes the registry to fetch and materialize tasks for local customization.
+## Need help?
+
+Open an issue or contact the AutocleanEEG team on Slack. Let us know which task you’re working on and whether you’re using the wizard or the CLI so we can assist quickly.
