@@ -2,7 +2,37 @@
  * Generates a Python task file from configuration
  */
 
-const SCHEMA_VERSION = "2025.09";
+import taskSchema from "../schema/task-schema-2025.09.json";
+
+type TaskSchemaLayout = {
+  schema_version: string;
+  tasks: Record<string, unknown>;
+};
+
+const parsedSchema = taskSchema as TaskSchemaLayout;
+
+if (!parsedSchema || typeof parsedSchema.schema_version !== "string") {
+  throw new Error("Task schema JSON is missing schema_version");
+}
+
+const SCHEMA_VERSION = parsedSchema.schema_version;
+const ALLOWED_CONFIG_KEYS = new Set(Object.keys(parsedSchema.tasks));
+
+function ensureKnownConfigKeys(config: Record<string, unknown>): void {
+  const providedVersion = config.schema_version;
+  if (providedVersion && providedVersion !== SCHEMA_VERSION) {
+    throw new Error(`Config schema_version '${providedVersion}' does not match expected '${SCHEMA_VERSION}'`);
+  }
+
+  for (const key of Object.keys(config)) {
+    if (key === "schema_version") {
+      continue;
+    }
+    if (!ALLOWED_CONFIG_KEYS.has(key)) {
+      throw new Error(`Unknown config section '${key}' (schema version ${SCHEMA_VERSION})`);
+    }
+  }
+}
 
 function formatValue(value: any, indent: number = 0): string {
   const spaces = ' '.repeat(indent);
@@ -60,6 +90,8 @@ export function generatePythonTask(taskName: string, config: any): string {
     .split('_')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join('');
+
+  ensureKnownConfigKeys(config);
 
   const configWithVersion = {
     schema_version: SCHEMA_VERSION,
