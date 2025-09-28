@@ -1,2 +1,7 @@
 integration_config_template.md
 integration_config_template_instructions.md
+node_modules
+.wrangler
+dist
+.DS_Store
+coverage

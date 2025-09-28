@@ -1,0 +1,27 @@
+{
+  "name": "autocleaneeg-task-registry",
+  "version": "1.0.0",
+  "description": "Task registry for the AutoCleanEEG pipeline. Provides standardized task definitions and metadata for EEG experiments.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "vitest",
+    "check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/auth-app": "^8.1.0",
+    "@octokit/core": "^7.0.4",
+    "itty-router": "^5.0.22",
+    "zod": "^4.1.11"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250927.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.40.2"
+  }
+}
