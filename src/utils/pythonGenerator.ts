@@ -2,7 +2,7 @@
  * Generates a Python task file from configuration
  */
 
-import taskSchema from "../schema/task-schema-2025.09.json";
+import taskSchema from "../schema/task-schema-2025.09.json" assert { type: "json" };
 
 type TaskSchemaLayout = {
   schema_version: string;
