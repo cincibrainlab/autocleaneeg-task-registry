@@ -1,0 +1,18 @@
+name = "taskwizard-registry-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+
+
+[vars]
+REGISTRY_OWNER = "cincibrainlab"
+REGISTRY_REPO = "autocleaneeg-task-registry"
+REGISTRY_DEFAULT_BRANCH = "main"
+ALLOWED_ORIGINS = "https://taskwizard.autocleaneeg.org,https://dev-taskwizard.pages.dev"
+CACHE_TTL_SECONDS = "300"
+
+[observability]
+enabled = true
+
+[env.preview.vars]
+ALLOWED_ORIGINS = "*"
+CACHE_TTL_SECONDS = "60"
