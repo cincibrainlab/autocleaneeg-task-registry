@@ -2,11 +2,11 @@
 
 This repository is the public catalogue of EEG task templates for the AutocleanEEG ecosystem. Each task describes a complete preprocessing pipeline – the same collection of templates you see inside the Task Wizard and can install with the AutocleanEEG command‑line tools.
 
-## How this registry helps you
+## Quick Start
 
 ### 1. Use the Task Wizard (recommended)
 - Go to **https://taskwizard.autocleaneeg.org**.
-- Step 1 shows the official templates from this registry – pick one or start from scratch.
+- Step 1 shows the official templates from this registry – pick one or start from scratch.
 - Configure the task, preview the Python output, then either download it or publish it back here with a single click.
 
 ### 2. Install templates with the AutocleanEEG CLI
@@ -21,41 +21,171 @@ This saves `tasks/<TaskName>.py` into your project, ready for import.
 ### 3. Download a task directly
 Prefer to grab a file manually?
 - Browse `tasks/<category>/<TaskName>.py` in this repo and download the file.
-- Or fetch from raw GitHub, e.g.:
+- Or fetch from raw GitHub:
   ```bash
   curl -O https://raw.githubusercontent.com/cincibrainlab/autocleaneeg-task-registry/main/tasks/resting/RestingEyesOpen.py
   ```
 
-### 4. Inspect the index
-All published tasks are listed in [`registry.json`](registry.json). Each entry maps a task name to its file path; downstream tools (Task Wizard, CLI) read this file to stay in sync.
+## Repository Structure
 
-## What’s inside the repository?
 ```
-├── registry.json          # master index of task names and locations
-└── tasks/                 # task implementations grouped by category
-    ├── resting/
-    ├── auditory/
-    └── …
+├── registry.json              # Master index of task names and locations
+├── TASKS.md                   # Comprehensive task directory with quick reference
+├── CHANGELOG.md               # Version history and breaking changes
+├── EOG_CHANNEL_REFERENCE.md   # Montage-specific EOG channel mappings
+├── docs/                      # Documentation
+│   ├── MIGRATION.md           # Migration guide for v2025.09 schema
+│   ├── BEST_PRACTICES.md      # Development guidelines
+│   └── FAQ.md                 # Frequently asked questions
+└── tasks/                     # Task implementations grouped by category
+    ├── resting/               # Resting-state paradigms
+    ├── auditory/              # Auditory paradigms (ASSR, MMN, chirp)
+    ├── visual/                # Visual paradigms (VEP)
+    └── rodent/                # Preclinical/rodent paradigms
 ```
-Sample tasks include:
 
-| Task | Category | Notes |
-| ---- | -------- | ----- |
-| `RestingEyesOpen`  | resting  | Baseline eyes-open resting-state pipeline |
-| `RestingEyesClosed`| resting  | Eyes-closed variant with matching preprocessing |
-| `ASSR_40Hz`        | auditory | Auditory steady-state response experiment |
-| `MMN_Standard`     | auditory | Mismatch negativity paradigm |
-| `BiotrialResting1020` | resting | Resting-state workflow tuned for 10-20 layouts |
+## Available Tasks
 
-## Contributing a new task
-The simplest path is through the Task Wizard: configure your task, run a **dry run**, then **Publish to Registry**. The wizard will open a pull request here for review.
+See **[TASKS.md](TASKS.md)** for comprehensive task catalog with quick reference table.
 
-If you need to submit manually:
-1. Add `tasks/<category>/<TaskName>.py` (PascalCase, matches the class name).
-2. Add the corresponding entry to `registry.json`.
-3. Open a pull request targeting `main` with a short description of the task and any validation notes.
+### Resting State (`tasks/resting/`)
+- **RestingEyesOpen** - Baseline eyes-open resting-state with FastICA
+- **RestingEyesClosed** - Eyes-closed variant with alpha rhythm analysis
+- **RestingState_WaveletOnly** - Wavelet-based denoising without ICA
+- **RestingEyesQuickCheck** - Quick quality check for resting data
+- **BiotrialResting1020** - Standard 10-20 montage workflow
 
-## Need help?
-Reach out on the lab Slack or open an issue on GitHub. Let us know which task you’re working with and whether you’re using the Task Wizard or the CLI so we can point you in the right direction quickly.
+### Auditory (`tasks/auditory/`)
+- **ASSR_40Hz** - Auditory steady-state response at 40 Hz
+- **MMN_Standard** - Mismatch negativity (oddball paradigm)
+- **Chirp_Default** - Chirp auditory stimulation
+- **BB_Long** - Long-duration broadband stimulation
+- **HBCD_MMN** - HBCD consortium mismatch negativity protocol
+
+### Visual (`tasks/visual/`)
+- **HBCD_VEP** - HBCD consortium visual evoked potential protocol
+
+### Rodent (`tasks/rodent/`)
+- **Mouse_XDAT_ASSR** - Mouse ASSR with correlation-based artifact rejection
+- **Mouse_XDAT_Chirp** - Mouse chirp with correlation-based artifact rejection
+- **Mouse_XDAT_Resting** - Mouse resting-state with correlation-based artifact rejection
+
+## Task Schema Version
+
+All tasks follow the **v2025.09** schema with:
+- Module-level `config` dictionary
+- No custom `__init__` methods
+- Explicit method calls in `run()`
+- Complete step definitions (even if `enabled: False`)
+- Full EOG dict format with explicit `eog_drop` control
+
+Example task structure:
+```python
+"""Task description."""
+
+from __future__ import annotations
+
+from autoclean.core.task import Task
+
+config = {
+    "schema_version": "2025.09",
+    "montage": {"enabled": True, "value": "GSN-HydroCel-129"},
+    "eog_step": {
+        "enabled": True,
+        "value": {
+            "eog_indices": [1, 32, 8, 14, 17, 21, 25, 125, 126, 127, 128],
+            "eog_drop": True,
+        },
+    },
+    # ... complete config
+}
+
+class TaskName(Task):
+    """Task description."""
+
+    def run(self) -> None:
+        self.import_raw()
+        self.resample_data()
+        # ... explicit method calls
+```
+
+## Documentation
+
+- **[TASKS.md](TASKS.md)** - Complete task catalog with parameters and use cases
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and breaking changes
+- **[EOG_CHANNEL_REFERENCE.md](EOG_CHANNEL_REFERENCE.md)** - Montage-specific EOG channels
+- **[docs/MIGRATION.md](docs/MIGRATION.md)** - Guide for migrating to v2025.09 schema
+- **[docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md)** - Task development guidelines
+- **[docs/FAQ.md](docs/FAQ.md)** - Common questions and troubleshooting
+
+## Contributing a New Task
+
+### Via Task Wizard (Recommended)
+1. Configure your task at https://taskwizard.autocleaneeg.org
+2. Run a **dry run** to test
+3. Click **Publish to Registry** to open a pull request
+
+### Manual Submission
+1. Create `tasks/<category>/<TaskName>.py` (PascalCase_With_Underscores)
+2. Follow v2025.09 schema (see `docs/BEST_PRACTICES.md`)
+3. Test with real data
+4. Add entry to `registry.json` with category and description
+5. Update `TASKS.md` with task details
+6. Open pull request with validation notes
+
+### Contribution Checklist
+- [ ] Task follows v2025.09 schema pattern
+- [ ] EOG configuration uses full dict format with `eog_drop`
+- [ ] All steps present in config (even if disabled)
+- [ ] Tested with real data
+- [ ] Added to `registry.json` with category/description
+- [ ] Documented in `TASKS.md`
+- [ ] Includes comprehensive docstring
+
+## Common Use Cases
+
+### Research Workflow
+```bash
+# Install pipeline
+pip install autocleaneeg-pipeline
+
+# Update task registry
+autocleaneeg-pipeline task library update
+
+# Install specific task
+autocleaneeg-pipeline task library install RestingEyesOpen
+
+# Process data
+autocleaneeg-pipeline process RestingEyesOpen /path/to/data.raw
+```
+
+### Custom Task Development
+```bash
+# Copy reference task
+cp tasks/resting/RestingEyesOpen.py ~/my_workspace/tasks/MyCustomTask.py
+
+# Edit configuration
+# ... modify config dict as needed
+
+# Test with sample data
+autocleaneeg-pipeline process ~/my_workspace/tasks/MyCustomTask.py /path/to/test.raw
+```
+
+## Need Help?
+
+- **Questions?** Open an issue on GitHub or reach out on lab Slack
+- **Bug reports?** Include task name, pipeline version, and error message
+- **Feature requests?** Describe your use case and proposed changes
+
+## Resources
+
+- **Pipeline Documentation**: https://cincibrainlab.github.io/autoclean_pipeline/
+- **Task Wizard**: https://taskwizard.autocleaneeg.org
+- **GitHub Issues**: https://github.com/cincibrainlab/autocleaneeg-task-registry/issues
+
+---
+
+**Schema Version**: 2025.09
+**Last Updated**: 2025-09-29
 
 Happy preprocessing! 🧠

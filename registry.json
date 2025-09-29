@@ -4,31 +4,87 @@
   "tasks": [
     {
       "name": "RestingEyesOpen",
-      "path": "tasks/resting/RestingEyesOpen.py"
+      "path": "tasks/resting/RestingEyesOpen.py",
+      "category": "resting",
+      "description": "Standard resting-state with eyes open"
     },
     {
       "name": "RestingEyesClosed",
-      "path": "tasks/resting/RestingEyesClosed.py"
-    },
-    {
-      "name": "ASSR_40Hz",
-      "path": "tasks/auditory/ASSR_40Hz.py"
-    },
-    {
-      "name": "MMN_Standard",
-      "path": "tasks/auditory/MMN_Standard.py"
-    },
-    {
-      "name": "RestingEyesQuickCheck",
-      "path": "tasks/resting/RestingEyesQuickCheck.py"
-    },
-    {
-      "name": "BiotrialResting1020",
-      "path": "tasks/resting/BiotrialResting1020.py"
+      "path": "tasks/resting/RestingEyesClosed.py",
+      "category": "resting",
+      "description": "Standard resting-state with eyes closed"
     },
     {
       "name": "RestingState_WaveletOnly",
-      "path": "tasks/resting/RestingState_WaveletOnly.py"
+      "path": "tasks/resting/RestingState_WaveletOnly.py",
+      "category": "resting",
+      "description": "Resting-state with wavelet-based denoising instead of ICA"
+    },
+    {
+      "name": "RestingEyesQuickCheck",
+      "path": "tasks/resting/RestingEyesQuickCheck.py",
+      "category": "resting",
+      "description": "Quick quality check for resting-state data"
+    },
+    {
+      "name": "BiotrialResting1020",
+      "path": "tasks/resting/BiotrialResting1020.py",
+      "category": "resting",
+      "description": "Biotrial resting-state with standard 10-20 montage"
+    },
+    {
+      "name": "ASSR_40Hz",
+      "path": "tasks/auditory/ASSR_40Hz.py",
+      "category": "auditory",
+      "description": "Auditory steady-state response at 40 Hz"
+    },
+    {
+      "name": "MMN_Standard",
+      "path": "tasks/auditory/MMN_Standard.py",
+      "category": "auditory",
+      "description": "Mismatch negativity (oddball paradigm)"
+    },
+    {
+      "name": "Chirp_Default",
+      "path": "tasks/auditory/Chirp_Default.py",
+      "category": "auditory",
+      "description": "Chirp auditory stimulation"
+    },
+    {
+      "name": "BB_Long",
+      "path": "tasks/auditory/BB_Long.py",
+      "category": "auditory",
+      "description": "Long-duration broadband auditory stimulation"
+    },
+    {
+      "name": "HBCD_MMN",
+      "path": "tasks/auditory/HBCD_MMN.py",
+      "category": "auditory",
+      "description": "HBCD study mismatch negativity protocol"
+    },
+    {
+      "name": "HBCD_VEP",
+      "path": "tasks/visual/HBCD_VEP.py",
+      "category": "visual",
+      "description": "HBCD study visual evoked potential protocol"
+    },
+    {
+      "name": "Mouse_XDAT_ASSR",
+      "path": "tasks/rodent/Mouse_XDAT_ASSR.py",
+      "category": "rodent",
+      "description": "Mouse ASSR with correlation-based artifact rejection"
+    },
+    {
+      "name": "Mouse_XDAT_Chirp",
+      "path": "tasks/rodent/Mouse_XDAT_Chirp.py",
+      "category": "rodent",
+      "description": "Mouse chirp with correlation-based artifact rejection"
+    },
+    {
+      "name": "Mouse_XDAT_Resting",
+      "path": "tasks/rodent/Mouse_XDAT_Resting.py",
+      "category": "rodent",
+      "description": "Mouse resting-state with correlation-based artifact rejection"
     }
   ]
 }
