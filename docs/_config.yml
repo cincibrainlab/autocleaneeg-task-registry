@@ -1,0 +1,8 @@
+theme: jekyll-theme-cayman
+title: AutoCleanEEG Task Registry
+description: Official task catalog for the AutoCleanEEG pipeline
+show_downloads: true
+github:
+  repository_url: https://github.com/cincibrainlab/autocleaneeg-task-registry
+  owner_name: cincibrainlab
+  owner_url: https://github.com/cincibrainlab

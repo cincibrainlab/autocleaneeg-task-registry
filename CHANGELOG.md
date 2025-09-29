@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **GitHub Pages Documentation**: Complete documentation site at https://cincibrainlab.github.io/autocleaneeg-task-registry/
+- **Documentation Reorganization**: Moved all docs to `/docs` folder for GitHub Pages
+  - Created comprehensive landing page (docs/index.md)
+  - Organized integration docs in docs/integration/
+  - Added development docs in docs/development/ (testing, architecture)
 - **New Task Categories**: Organized tasks into `resting/`, `auditory/`, `visual/`, and `rodent/` subdirectories
 - **Visual Tasks**: Added `HBCD_VEP` for visual evoked potential protocol
 - **Auditory Tasks**: Added `Chirp_Default`, `BB_Long`, and `HBCD_MMN`
@@ -105,8 +110,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Resources
 
-- **Task Directory**: See `TASKS.md` for complete task catalog
-- **EOG Reference**: See `EOG_CHANNEL_REFERENCE.md` for montage-specific channels
+- **Task Registry Docs**: https://cincibrainlab.github.io/autocleaneeg-task-registry/
+- **Task Directory**: See `docs/TASKS.md` for complete task catalog
+- **EOG Reference**: See `docs/EOG_CHANNEL_REFERENCE.md` for montage-specific channels
 - **Best Practices**: See `docs/BEST_PRACTICES.md` for development guidelines
 - **Pipeline Docs**: https://cincibrainlab.github.io/autoclean_pipeline/
 

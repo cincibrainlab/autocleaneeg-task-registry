@@ -2,6 +2,8 @@
 
 This repository is the public catalogue of EEG task templates for the AutocleanEEG ecosystem. Each task describes a complete preprocessing pipeline – the same collection of templates you see inside the Task Wizard and can install with the AutocleanEEG command‑line tools.
 
+📚 **Documentation**: [https://cincibrainlab.github.io/autocleaneeg-task-registry/](https://cincibrainlab.github.io/autocleaneeg-task-registry/)
+
 ## Quick Start
 
 ### 1. Use the Task Wizard (recommended)
@@ -30,13 +32,16 @@ Prefer to grab a file manually?
 
 ```
 ├── registry.json              # Master index of task names and locations
-├── TASKS.md                   # Comprehensive task directory with quick reference
 ├── CHANGELOG.md               # Version history and breaking changes
-├── EOG_CHANNEL_REFERENCE.md   # Montage-specific EOG channel mappings
-├── docs/                      # Documentation
-│   ├── MIGRATION.md           # Migration guide for v2025.09 schema
+├── docs/                      # Documentation (GitHub Pages)
+│   ├── index.md               # Documentation landing page
+│   ├── TASKS.md               # Comprehensive task directory
+│   ├── EOG_CHANNEL_REFERENCE.md # Montage-specific EOG mappings
+│   ├── MIGRATION.md           # Migration guide for v2025.09
 │   ├── BEST_PRACTICES.md      # Development guidelines
-│   └── FAQ.md                 # Frequently asked questions
+│   ├── FAQ.md                 # Frequently asked questions
+│   ├── integration/           # Task Wizard integration docs
+│   └── development/           # Infrastructure and testing docs
 └── tasks/                     # Task implementations grouped by category
     ├── resting/               # Resting-state paradigms
     ├── auditory/              # Auditory paradigms (ASSR, MMN, chirp)
@@ -46,7 +51,7 @@ Prefer to grab a file manually?
 
 ## Available Tasks
 
-See **[TASKS.md](TASKS.md)** for comprehensive task catalog with quick reference table.
+See **[Task Catalog](https://cincibrainlab.github.io/autocleaneeg-task-registry/TASKS.html)** for comprehensive directory with quick reference table.
 
 ### Resting State (`tasks/resting/`)
 - **RestingEyesOpen** - Baseline eyes-open resting-state with FastICA
@@ -111,12 +116,14 @@ class TaskName(Task):
 
 ## Documentation
 
-- **[TASKS.md](TASKS.md)** - Complete task catalog with parameters and use cases
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and breaking changes
-- **[EOG_CHANNEL_REFERENCE.md](EOG_CHANNEL_REFERENCE.md)** - Montage-specific EOG channels
-- **[docs/MIGRATION.md](docs/MIGRATION.md)** - Guide for migrating to v2025.09 schema
-- **[docs/BEST_PRACTICES.md](docs/BEST_PRACTICES.md)** - Task development guidelines
-- **[docs/FAQ.md](docs/FAQ.md)** - Common questions and troubleshooting
+Full documentation available at **[cincibrainlab.github.io/autocleaneeg-task-registry](https://cincibrainlab.github.io/autocleaneeg-task-registry/)**
+
+- **[Task Catalog](docs/TASKS.md)** - Complete task directory with parameters
+- **[EOG Reference](docs/EOG_CHANNEL_REFERENCE.md)** - Montage-specific EOG channels
+- **[Migration Guide](docs/MIGRATION.md)** - Upgrading to v2025.09 schema
+- **[Best Practices](docs/BEST_PRACTICES.md)** - Task development guidelines
+- **[FAQ](docs/FAQ.md)** - Common questions and troubleshooting
+- **[CHANGELOG](CHANGELOG.md)** - Version history and breaking changes
 
 ## Contributing a New Task
 
@@ -130,7 +137,7 @@ class TaskName(Task):
 2. Follow v2025.09 schema (see `docs/BEST_PRACTICES.md`)
 3. Test with real data
 4. Add entry to `registry.json` with category and description
-5. Update `TASKS.md` with task details
+5. Update `docs/TASKS.md` with task details
 6. Open pull request with validation notes
 
 ### Contribution Checklist
@@ -139,7 +146,7 @@ class TaskName(Task):
 - [ ] All steps present in config (even if disabled)
 - [ ] Tested with real data
 - [ ] Added to `registry.json` with category/description
-- [ ] Documented in `TASKS.md`
+- [ ] Documented in `docs/TASKS.md`
 - [ ] Includes comprehensive docstring
 
 ## Common Use Cases
@@ -179,6 +186,7 @@ autocleaneeg-pipeline process ~/my_workspace/tasks/MyCustomTask.py /path/to/test
 
 ## Resources
 
+- **Task Registry Docs**: https://cincibrainlab.github.io/autocleaneeg-task-registry/
 - **Pipeline Documentation**: https://cincibrainlab.github.io/autoclean_pipeline/
 - **Task Wizard**: https://taskwizard.autocleaneeg.org
 - **GitHub Issues**: https://github.com/cincibrainlab/autocleaneeg-task-registry/issues
