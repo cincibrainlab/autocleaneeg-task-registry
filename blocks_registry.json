@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "commit": "local-snapshot",
+  "updated_at": "2025-09-29T00:00:00Z",
+  "blocks": [
+    {
+      "name": "wavelet_threshold",
+      "category": "signal_processing",
+      "path": "blocks/signal_processing/wavelet_threshold",
+      "version": "1.0.0",
+      "description": "Wavelet-based artifact removal using discrete wavelet transform with universal thresholding",
+      "tags": ["artifact-removal", "denoising", "wavelet", "preprocessing", "happe", "transient-artifacts"],
+      "mixin_method": "apply_wavelet_threshold",
+      "compatible_data_types": ["raw", "epochs"],
+      "processing_stages": ["post_filtering", "pre_epoching", "post_ica"],
+      "status": "stable"
+    }
+  ]
+}

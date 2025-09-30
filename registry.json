@@ -33,6 +33,12 @@
       "description": "Biotrial resting-state with standard 10-20 montage"
     },
     {
+      "name": "WaveletBlock_Test",
+      "path": "tasks/resting/WaveletBlock_Test.py",
+      "category": "resting",
+      "description": "Test task for wavelet_threshold processing block"
+    },
+    {
       "name": "ASSR_40Hz",
       "path": "tasks/auditory/ASSR_40Hz.py",
       "category": "auditory",
