@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "category": "analysis",
   "subcategory": "spectral_parameterization",
-  "description": "Vertex-level extraction of oscillatory peak parameters from source-localized EEG data using the FOOOF algorithm",
+  "description": "Vertex-level extraction of oscillatory peak parameters from source-localized EEG data using the specparam algorithm (formerly FOOOF)",
   "author": "AutoClean EEG Team",
   "created": "2025-09-30",
   "dependencies": {
     "required": ["mne>=1.10.1", "numpy", "scipy", "pandas"],
-    "optional": ["fooof", "specparam"]
+    "recommended": ["specparam>=2.0"],
+    "legacy": ["fooof"]
   },
   "inputs": {
     "data_type": "mne.SourceEstimate (PSD)",
@@ -48,7 +49,7 @@
     "aperiodic_mode": {
       "type": "string",
       "default": "knee",
-      "description": "FOOOF fitting mode",
+      "description": "specparam fitting mode for aperiodic component",
       "options": ["fixed", "knee"]
     }
   },

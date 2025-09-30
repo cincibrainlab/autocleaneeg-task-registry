@@ -1,16 +1,16 @@
-# FOOOF Periodic Analysis Block
+# specparam Periodic Analysis Block
 
-Vertex-level extraction of oscillatory peak parameters from source-localized EEG data using the FOOOF algorithm.
+Vertex-level extraction of oscillatory peak parameters from source-localized EEG data using the specparam algorithm.
 
 ## Overview
 
-This block implements FOOOF (Fitting Oscillations & One Over F) analysis to extract periodic (oscillatory) components from neural power spectra. It identifies dominant oscillatory peaks in specified frequency bands across 20,484 cortical surface vertices.
+This block implements specparam (formerly FOOOF - Fitting Oscillations & One Over F) analysis to extract periodic (oscillatory) components from neural power spectra. It identifies dominant oscillatory peaks in specified frequency bands across 20,484 cortical surface vertices.
 
 ## Scientific Background
 
 **Reference**: Donoghue T, et al. (2020). Parameterizing neural power spectra into periodic and aperiodic components. *Nature Neuroscience*, 23(12), 1655-1665.
 
-The periodic component reflects synchronized neural oscillations. For each frequency band, FOOOF identifies:
+The periodic component reflects synchronized neural oscillations. For each frequency band, specparam identifies:
 
 - **Center frequency**: Peak location in Hz (e.g., 10 Hz for alpha)
 - **Power**: Peak amplitude (after removing aperiodic component)
@@ -25,13 +25,13 @@ The periodic component reflects synchronized neural oscillations. For each frequ
 - OR accepts standalone PSD SourceEstimate
 
 ### Processing
-1. Fits FOOOF model to each vertex spectrum
+1. Fits specparam model to each vertex spectrum
 2. Identifies dominant peak in each frequency band
 3. Extracts peak parameters (frequency, power, bandwidth)
 4. Returns NaN for bands with no detected peaks
 
 ### Peak Selection
-- Uses `get_band_peak_fm()` from FOOOF
+- Uses `get_band_peak_fm()` from specparam
 - Selects highest peak if multiple peaks in band
 - Validates peak meets threshold criteria
 
@@ -185,15 +185,17 @@ strongest_alpha = occipital_alpha.nlargest(10, 'power')
 
 ## Dependencies
 
-- `fooof` or `specparam`: Spectral parameterization library
+- `specparam` (>= 2.0, recommended) or `fooof` (legacy): Spectral parameterization library
 - MNE-Python >= 1.10.1
 - numpy, scipy, pandas
 
 **Installation**:
 ```bash
-pip install fooof
-# OR (newer version)
+# Recommended (specparam 2.0+)
 pip install specparam
+
+# OR (legacy FOOOF package, still supported)
+pip install fooof
 ```
 
 ## Performance
