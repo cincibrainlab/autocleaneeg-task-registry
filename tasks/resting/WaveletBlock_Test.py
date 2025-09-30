@@ -16,7 +16,7 @@ from autoclean.core.task import Task
 
 config = {
     "schema_version": "2025.09",
-    "montage": {"enabled": True, "value": "GSN-HydroCel-129"},
+    "montage": {"enabled": True, "value": "standard_1020"},
     "move_flagged_files": False,
 
     # Basic preprocessing
@@ -66,8 +66,24 @@ config = {
     "reference_step": {"enabled": True, "value": "average"},
 
     # ICA (disabled - using wavelet instead)
-    "ICA": {"enabled": False},
-    "component_rejection": {"enabled": False},
+    "ICA": {
+        "enabled": False,
+        "value": {
+            "method": "fastica",
+            "n_components": None,
+            "max_iter": "auto",
+            "random_state": 97,
+        },
+    },
+    "component_rejection": {
+        "enabled": False,
+        "method": "icvision",
+        "value": {
+            "ic_flags_to_reject": ["muscle", "heart", "eog", "ch_noise", "line_noise"],
+            "ic_rejection_threshold": 0.3,
+            "psd_fmax": 80.0,
+        },
+    },
 
     # Epoching (optional for resting)
     "epoch_settings": {
