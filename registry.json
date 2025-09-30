@@ -39,6 +39,12 @@
       "description": "Test task for wavelet_threshold processing block"
     },
     {
+      "name": "RestingState_WaveletDemo",
+      "path": "tasks/resting/RestingState_WaveletDemo.py",
+      "category": "resting",
+      "description": "Resting-state demo using wavelet_threshold processing block"
+    },
+    {
       "name": "ASSR_40Hz",
       "path": "tasks/auditory/ASSR_40Hz.py",
       "category": "auditory",
