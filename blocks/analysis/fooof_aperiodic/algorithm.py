@@ -29,14 +29,30 @@ import pandas as pd
 from joblib import Parallel, delayed
 from scipy import signal
 
-# Optional FOOOF dependency
+# Optional spectral parameterization dependency (prefer specparam over legacy fooof)
 try:
-    from fooof import FOOOF, FOOOFGroup
-    from fooof.analysis import get_band_peak_fm
+    from specparam import SpectralModel as FOOOF, SpectralGroupModel as FOOOFGroup
+    from specparam.data.periodic import get_band_peak as get_band_peak_fm
 
     FOOOF_AVAILABLE = True
 except ImportError:
-    FOOOF_AVAILABLE = False
+    # Fallback to legacy fooof package
+    try:
+        from fooof import FOOOF, FOOOFGroup
+        from fooof.analysis import get_band_peak_fm
+
+        FOOOF_AVAILABLE = True
+    except ImportError:
+        FOOOF_AVAILABLE = False
+
+
+def _get_group_model(fg, index):
+    """Return a fitted spectral model from a group, compatible with fooof & specparam."""
+
+    if hasattr(fg, "get_fooof"):
+        return fg.get_fooof(index)
+
+    return fg.get_model(index)
 
 
 def calculate_vertex_psd_for_fooof(
@@ -242,8 +258,8 @@ def calculate_fooof_aperiodic(
                 fg = FOOOFGroup(**fooof_params)
                 fg.fit(freqs, batch_psds)
 
-                # Check if fits were successful
-                if np.any(~fg.get_params("aperiodic_params")[:, 0].astype(bool)):
+                # Check if fits were successful (all params finite)
+                if not np.isfinite(fg.get_params("aperiodic_params")).all():
                     # Some fits failed, try fallback parameters
                     raise RuntimeError("Some fits failed with primary parameters")
 
@@ -521,8 +537,8 @@ def calculate_fooof_periodic(
 
         for i, vertex_idx in enumerate(vertices):
             for band_name, band_range in freq_bands.items():
-                # Get FOOOF model for this vertex
-                fm = fg.get_fooof(i)
+                # Get spectral model for this vertex (handles fooof & specparam)
+                fm = _get_group_model(fg, i)
 
                 # Extract peak in this band
                 peak_params = get_band_peak_fm(fm, band_range, select_highest=True)
