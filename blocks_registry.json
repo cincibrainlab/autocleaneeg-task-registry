@@ -14,6 +14,18 @@
       "compatible_data_types": ["raw", "epochs"],
       "processing_stages": ["post_filtering", "pre_epoching", "post_ica"],
       "status": "stable"
+    },
+    {
+      "name": "autoreject",
+      "category": "signal_processing",
+      "path": "blocks/signal_processing/autoreject",
+      "version": "1.0.0",
+      "description": "Machine learning-based automated artifact rejection and channel interpolation using cross-validation",
+      "tags": ["artifact-rejection", "epochs", "quality-control", "machine-learning", "cross-validation", "interpolation"],
+      "mixin_method": "apply_autoreject",
+      "compatible_data_types": ["epochs"],
+      "processing_stages": ["post_epoching", "pre_averaging"],
+      "status": "stable"
     }
   ]
 }

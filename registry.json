@@ -45,6 +45,12 @@
       "description": "Resting-state demo using wavelet_threshold processing block"
     },
     {
+      "name": "AutoReject_Demo",
+      "path": "tasks/testing/AutoReject_Demo.py",
+      "category": "testing",
+      "description": "Demo task for autoreject processing block with ERP data"
+    },
+    {
       "name": "ASSR_40Hz",
       "path": "tasks/auditory/ASSR_40Hz.py",
       "category": "auditory",
