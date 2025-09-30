@@ -253,6 +253,84 @@ class SourceLocalizationMixin:
             else:
                 self.stc_list = stc
 
+            # Optional: Convert STC to EEG format for BIDS derivatives
+            convert_to_eeg = False
+            if config_value and isinstance(config_value, dict):
+                convert_to_eeg = config_value.get("convert_to_eeg", False)
+
+            if convert_to_eeg:
+                try:
+                    from .algorithm import convert_stc_to_eeg, convert_stc_list_to_eeg
+                    from pathlib import Path
+
+                    # Set up output directory
+                    if hasattr(self, "config") and "derivatives_dir" in self.config:
+                        base_dir = Path(self.config["derivatives_dir"])
+                    elif hasattr(self, "file_path"):
+                        base_dir = Path(self.file_path).parent / "derivatives"
+                    else:
+                        base_dir = Path.cwd() / "derivatives"
+
+                    output_dir = base_dir / "source_localization_eeg"
+                    output_dir.mkdir(parents=True, exist_ok=True)
+
+                    # Get subject ID
+                    subject_id = "unknown"
+                    if hasattr(self, "config") and "subject_id" in self.config:
+                        subject_id = self.config["subject_id"]
+                    elif hasattr(self, "file_path"):
+                        subject_id = Path(self.file_path).stem
+
+                    if hasattr(self, "message"):
+                        self.message("info", f"Converting source estimates to EEG format (68 ROI channels)...")
+
+                    if is_raw:
+                        raw_eeg, eeg_file = convert_stc_to_eeg(
+                            stc=stc,
+                            subject="fsaverage",
+                            subjects_dir=None,
+                            output_dir=str(output_dir),
+                            subject_id=subject_id
+                        )
+                        self.source_eeg = raw_eeg
+                        self.source_eeg_file = eeg_file
+
+                        if hasattr(self, "message"):
+                            self.message("success", f"Converted to EEG: {eeg_file}")
+                    else:
+                        epochs_eeg, eeg_file = convert_stc_list_to_eeg(
+                            stc_list=stc,
+                            subject="fsaverage",
+                            subjects_dir=None,
+                            output_dir=str(output_dir),
+                            subject_id=subject_id,
+                            events=None,
+                            event_id=None
+                        )
+                        self.source_eeg = epochs_eeg
+                        self.source_eeg_file = eeg_file
+
+                        if hasattr(self, "message"):
+                            self.message("success", f"Converted {len(stc)} epochs to EEG: {eeg_file}")
+
+                    # Update metadata
+                    if hasattr(self, "_update_metadata"):
+                        conversion_metadata = {
+                            "converted_to_eeg": True,
+                            "n_roi_channels": 68,
+                            "atlas": "Desikan-Killiany (aparc)",
+                            "eeg_file": eeg_file,
+                        }
+                        self._update_metadata("step_source_eeg_conversion", conversion_metadata)
+
+                except Exception as conv_error:
+                    error_msg = f"Warning: STC→EEG conversion failed: {str(conv_error)}"
+                    if hasattr(self, "message"):
+                        self.message("warning", error_msg)
+                    else:
+                        print(f"WARNING: {error_msg}")
+                    # Don't fail the whole step if conversion fails
+
             return stc
 
         except Exception as e:

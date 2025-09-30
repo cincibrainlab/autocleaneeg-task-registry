@@ -47,11 +47,52 @@
       "format": "STC object",
       "saved_to": "derivatives/source_localization/"
     },
+    "optional_eeg_conversion": {
+      "type": "Raw or Epochs",
+      "format": "EEGLAB .set file",
+      "saved_to": "derivatives/source_localization_eeg/",
+      "description": "68-channel EEG (Desikan-Killiany ROIs) when convert_to_eeg=True",
+      "includes": [
+        "{subject}_dk_regions.set: EEGLAB file with ROI time courses",
+        "{subject}_dk_montage.fif: MNE montage with ROI centroids",
+        "{subject}_region_info.csv: ROI metadata (names, hemispheres, positions)"
+      ]
+    },
     "metadata": {
       "n_vertices": "integer (typically 10,242)",
       "method": "string (MNE, dSPM, sLORETA)",
       "lambda2": "float (regularization parameter)",
       "sfreq": "float (sampling frequency)"
+    }
+  },
+
+  "parameters": {
+    "method": {
+      "type": "string",
+      "default": "MNE",
+      "options": ["MNE", "dSPM", "sLORETA"],
+      "description": "Inverse solution method"
+    },
+    "lambda2": {
+      "type": "float",
+      "default": 0.111,
+      "description": "Regularization parameter (1/SNR²)"
+    },
+    "pick_ori": {
+      "type": "string",
+      "default": "normal",
+      "options": ["normal", null],
+      "description": "Source orientation constraint"
+    },
+    "n_jobs": {
+      "type": "integer",
+      "default": 10,
+      "description": "Number of parallel jobs"
+    },
+    "convert_to_eeg": {
+      "type": "boolean",
+      "default": false,
+      "description": "Convert source estimates to 68-channel EEG format (Desikan-Killiany ROIs) for BIDS derivatives"
     }
   },
 

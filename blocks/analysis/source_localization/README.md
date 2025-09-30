@@ -113,6 +113,33 @@ config = {
 | `lambda2` | float | `0.111` | Regularization parameter (1/SNR²) |
 | `pick_ori` | str | `"normal"` | Source orientation: `"normal"` (constrained), `None` (free) |
 | `n_jobs` | int | `10` | Number of parallel jobs for forward solution |
+| `convert_to_eeg` | bool | `False` | Convert STCs to 68-channel EEG (Desikan-Killiany ROIs) |
+
+### EEG Conversion Feature
+
+Optionally convert source estimates (10,242 vertices) to standardized 68-channel EEG format using Desikan-Killiany atlas ROIs. This enables:
+- Analysis with standard EEG software (EEGLAB, FieldTrip, etc.)
+- BIDS-compatible derivatives
+- Simplified ROI-based analyses
+- Compatibility with existing EEG pipelines
+
+```python
+config = {
+    "apply_source_localization": {
+        "enabled": True,
+        "value": {
+            "method": "MNE",
+            "lambda2": 0.111,
+            "convert_to_eeg": True  # Enable conversion
+        }
+    }
+}
+```
+
+**Outputs when `convert_to_eeg=True`:**
+- `{subject}_dk_regions.set` - EEGLAB file with 68 ROI time courses
+- `{subject}_dk_montage.fif` - MNE montage with ROI centroid positions
+- `{subject}_region_info.csv` - ROI metadata (names, hemispheres, coordinates)
 
 ## Usage in Tasks
 
@@ -301,6 +328,9 @@ Source estimates enable:
 
 4. **Inverse Methods Comparison**
    - Grech R, et al. (2008). Review on solving the inverse problem in EEG source analysis. *Journal of NeuroEngineering and Rehabilitation*, 5(1), 25.
+
+5. **Desikan-Killiany Atlas**
+   - Desikan RS, et al. (2006). An automated labeling system for subdividing the human cerebral cortex on MRI scans into gyral based regions of interest. *NeuroImage*, 31(3), 968-980.
 
 ## Version History
 
