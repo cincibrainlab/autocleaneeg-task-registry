@@ -30,7 +30,10 @@ config = {
             "notch_widths": 4.0,
         },
     },
+    "drop_outerlayer": {"enabled": False, "value": []},
     "trim_step": {"enabled": True, "value": 2.0},
+    "crop_step": {"enabled": False, "value": {"start": 0.0, "end": 0.0}},
+    "eog_step": {"enabled": False, "value": []},
 
     # === WAVELET_THRESHOLD PROCESSING BLOCK ===
     # Block: signal_processing/wavelet_threshold v1.0.0
@@ -61,6 +64,10 @@ config = {
 
     # Post-processing
     "reference_step": {"enabled": True, "value": "average"},
+
+    # ICA (disabled - using wavelet instead)
+    "ICA": {"enabled": False},
+    "component_rejection": {"enabled": False},
 
     # Epoching (optional for resting)
     "epoch_settings": {
