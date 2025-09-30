@@ -55,6 +55,7 @@ class SourceLocalizationMixin:
         lambda2: float = 1.0 / 9.0,
         pick_ori: str = "normal",
         n_jobs: int = 10,
+        save_stc: bool = False,
         stage_name: str = "apply_source_localization",
     ) -> Union[mne.SourceEstimate, list]:
         """Apply MNE source localization to estimate cortical sources.
@@ -80,6 +81,7 @@ class SourceLocalizationMixin:
             lambda2: Regularization parameter (default: 1/9 = 0.111)
             pick_ori: Source orientation constraint (default: "normal")
             n_jobs: Number of parallel jobs for forward solution (default: 10)
+            save_stc: If True, save vertex-level STC file (default: False)
             stage_name: Name for saving and metadata tracking
 
         Returns:
@@ -132,6 +134,7 @@ class SourceLocalizationMixin:
                 lambda2 = config_value.get("lambda2", lambda2)
                 pick_ori = config_value.get("pick_ori", pick_ori)
                 n_jobs = config_value.get("n_jobs", n_jobs)
+                save_stc = config_value.get("save_stc", save_stc)
 
         # Determine which data to use
         if data is None:
@@ -176,7 +179,7 @@ class SourceLocalizationMixin:
 
             # Call appropriate algorithm function
             if is_raw:
-                stc = estimate_source_function_raw(data, config=save_config)
+                stc = estimate_source_function_raw(data, config=save_config, save_stc=save_stc)
                 stc_type = "continuous"
                 n_sources = stc.data.shape[0]
                 n_times = stc.data.shape[1]
@@ -274,12 +277,27 @@ class SourceLocalizationMixin:
                     output_dir = base_dir / "source_localization_eeg"
                     output_dir.mkdir(parents=True, exist_ok=True)
 
-                    # Get subject ID
-                    subject_id = "unknown"
-                    if hasattr(self, "config") and "subject_id" in self.config:
-                        subject_id = self.config["subject_id"]
-                    elif hasattr(self, "file_path"):
+                    # Get subject ID - use same method as other blocks
+                    subject_id = None
+                    if hasattr(self, "config"):
+                        config = self.config
+                        # Get subject ID from config - use same method as export functions
+                        if "unprocessed_file" in config:
+                            subject_id = Path(config["unprocessed_file"]).stem
+                        elif "subject_id" in config:
+                            subject_id = config["subject_id"]
+                        elif "base_fname" in config:
+                            subject_id = config["base_fname"]
+                        elif "original_fname" in config:
+                            # Extract just the stem (no extension)
+                            subject_id = Path(config["original_fname"]).stem
+
+                    # Fallback: extract subject_id from filename
+                    if subject_id is None and hasattr(self, "file_path"):
                         subject_id = Path(self.file_path).stem
+
+                    if subject_id is None:
+                        subject_id = "unknown"
 
                     if hasattr(self, "message"):
                         self.message("info", f"Converting source estimates to EEG format (68 ROI channels)...")

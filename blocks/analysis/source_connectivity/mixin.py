@@ -166,15 +166,29 @@ class SourceConnectivityMixin:
 
             # Prepare parameters
             output_dir = None
-            subject_id = "unknown_subject"
+            subject_id = None  # Leave as None to let algorithm function handle default
 
             # Get output directory and subject ID from task config
             if hasattr(self, "config"):
                 config = self.config
-                if "output_dir" in config:
+                # Use derivatives_dir if available (BIDS structure)
+                if "derivatives_dir" in config:
+                    output_dir = Path(config["derivatives_dir"]) / "connectivity"
+                    output_dir.mkdir(parents=True, exist_ok=True)
+                    output_dir = str(output_dir)
+                elif "output_dir" in config:
                     output_dir = config["output_dir"]
                 if "subject_id" in config:
+                    # Get subject ID from config - use same method as export functions
+                if "unprocessed_file" in config:
+                    subject_id = Path(config["unprocessed_file"]).stem
+                elif "subject_id" in config:
                     subject_id = config["subject_id"]
+                elif "base_fname" in config:
+                    subject_id = config["base_fname"]
+                elif "original_fname" in config:
+                    # Extract just the stem (no extension)
+                    subject_id = Path(config["original_fname"]).stem
 
             # If output_dir not in config, try to construct from file paths
             if output_dir is None and hasattr(self, "file_path"):
@@ -185,7 +199,7 @@ class SourceConnectivityMixin:
                 output_dir = str(output_dir)
 
             # If subject_id not in config, try to extract from filename
-            if subject_id == "unknown_subject" and hasattr(self, "file_path"):
+            if subject_id is None and hasattr(self, "file_path"):
                 subject_id = Path(self.file_path).stem
 
             # Call algorithm function

@@ -25,10 +25,15 @@ from mne.datasets import fetch_fsaverage
 from autoclean.io.export import save_stc_to_file
 
 
-def estimate_source_function_raw(raw: mne.io.Raw, config: dict = None):
+def estimate_source_function_raw(raw: mne.io.Raw, config: dict = None, save_stc: bool = False):
     """
     Perform source localization on continuous resting-state EEG data using an identity matrix
     for noise covariance, keeping it as raw data.
+
+    Args:
+        raw: MNE Raw object
+        config: Configuration dictionary
+        save_stc: If True, save vertex-level STC file (default: False)
     """
     # --------------------------------------------------------------------------
     # Preprocessing for Source Localization
@@ -74,7 +79,7 @@ def estimate_source_function_raw(raw: mne.io.Raw, config: dict = None):
         "Computed continuous source estimates using MNE with identity noise covariance"
     )
 
-    if config is not None:
+    if config is not None and save_stc:
         save_stc_to_file(stc, config, stage="post_source_localization")
 
     matplotlib.use("Agg")
