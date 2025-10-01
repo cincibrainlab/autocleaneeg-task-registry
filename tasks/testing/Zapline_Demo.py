@@ -28,6 +28,7 @@ config = {
             "h_freq": 100.0,
             # NOTE: No notch filter - Zapline will handle line noise
             "notch_freqs": None,
+            "notch_widths": None,  # Not used when notch_freqs is None
         },
     },
     "drop_outerlayer": {"enabled": True, "value": []},
