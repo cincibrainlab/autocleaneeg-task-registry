@@ -171,7 +171,7 @@ class Zapline_Demo(Task):
 
         # Generate before/after PSD comparison plots
         if hasattr(self, 'pre_zapline_raw') and self.raw is not None:
-            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw)
+            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw, report_subdir="zapline")
 
         # The zapline block automatically logs quality metrics
         # including power reduction and SNR improvement
