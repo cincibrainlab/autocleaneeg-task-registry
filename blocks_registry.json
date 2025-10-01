@@ -1,7 +1,7 @@
 {
   "version": 1,
   "commit": "local-snapshot",
-  "updated_at": "2025-09-29T00:00:00Z",
+  "updated_at": "2025-10-01T07:30:00Z",
   "blocks": [
     {
       "name": "wavelet_threshold",
@@ -25,6 +25,54 @@
       "mixin_method": "apply_autoreject",
       "compatible_data_types": ["epochs"],
       "processing_stages": ["post_epoching", "pre_averaging"],
+      "status": "stable"
+    },
+    {
+      "name": "fooof_analysis",
+      "category": "analysis",
+      "path": "blocks/analysis/fooof_analysis",
+      "version": "1.0.0",
+      "description": "FOOOF spectral parameterization for extracting periodic and aperiodic components from source-localized EEG",
+      "tags": ["spectral-analysis", "fooof", "specparam", "1/f", "oscillations", "aperiodic", "periodic"],
+      "mixin_method": "apply_fooof_analysis",
+      "compatible_data_types": ["source_estimate"],
+      "processing_stages": ["post_source_localization"],
+      "status": "stable"
+    },
+    {
+      "name": "source_localization",
+      "category": "analysis",
+      "path": "blocks/analysis/source_localization",
+      "version": "1.0.0",
+      "description": "MNE source localization for projecting sensor-space EEG to cortical sources using minimum norm estimation",
+      "tags": ["source-localization", "inverse-solution", "cortical-mapping", "mne", "fsaverage", "minimum-norm"],
+      "mixin_method": "apply_source_localization",
+      "compatible_data_types": ["raw", "epochs"],
+      "processing_stages": ["post_ica", "post_filtering", "post_epoching"],
+      "status": "stable"
+    },
+    {
+      "name": "source_psd",
+      "category": "analysis",
+      "path": "blocks/analysis/source_psd",
+      "version": "1.0.0",
+      "description": "Source-level power spectral density (PSD) calculation with ROI averaging using Welch's method",
+      "tags": ["source-psd", "spectral-analysis", "roi", "desikan-killiany", "welch", "frequency-bands", "power-analysis"],
+      "mixin_method": "apply_source_psd",
+      "compatible_data_types": ["source_estimate"],
+      "processing_stages": ["post_source_localization"],
+      "status": "stable"
+    },
+    {
+      "name": "source_connectivity",
+      "category": "analysis",
+      "path": "blocks/analysis/source_connectivity",
+      "version": "1.0.0",
+      "description": "Source-level functional connectivity and graph theory metrics using multiple methods (WPLI, PLV, coherence, PLI, AEC)",
+      "tags": ["connectivity", "functional-connectivity", "graph-theory", "network-analysis", "wpli", "aec", "brain-networks"],
+      "mixin_method": "apply_source_connectivity",
+      "compatible_data_types": ["source_estimate"],
+      "processing_stages": ["post_source_localization"],
       "status": "stable"
     }
   ]
