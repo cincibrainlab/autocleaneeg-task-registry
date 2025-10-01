@@ -12,6 +12,8 @@ Registry: blocks/signal_processing/zapline
 from __future__ import annotations
 
 from autoclean.core.task import Task
+from autoclean.utils.logging import message
+from autoclean.utils.database import get_run_record
 
 
 config = {
@@ -175,27 +177,29 @@ class Zapline_Demo(Task):
         # including power reduction and SNR improvement
 
         # Check metadata for zapline results
-        if hasattr(self, 'metadata'):
-            zapline_meta = self.metadata.get('step_zapline', {})
+        run_record = get_run_record(self.config['run_id'])
+        zapline_meta = run_record.get('metadata', {}).get('step_zapline', {})
 
-            if zapline_meta:
-                self.logger.info("Zapline Quality Metrics:")
-                self.logger.info(f"  Block version: {zapline_meta.get('source_commit', 'unknown')[:8]}")
-                self.logger.info(f"  Line frequency: {zapline_meta.get('fline')} Hz")
-                self.logger.info(f"  Components removed: {zapline_meta.get('nkeep')}")
+        if zapline_meta:
+            message("info", "Zapline Quality Metrics:")
+            message("info", f"  Block version: {zapline_meta.get('source_commit', 'unknown')[:8]}")
+            message("info", f"  Line frequency: {zapline_meta.get('fline')} Hz")
+            message("info", f"  Components removed: {zapline_meta.get('nkeep')}")
 
-                if 'reduction_db' in zapline_meta:
-                    reduction = zapline_meta['reduction_db']
-                    self.logger.info(f"  Noise reduction: {reduction:.1f} dB")
+            if 'reduction_db' in zapline_meta:
+                reduction = zapline_meta['reduction_db']
+                message("info", f"  Noise reduction: {reduction:.1f} dB")
 
-                    if reduction >= 20:
-                        self.logger.info("  Quality: Excellent (>20 dB reduction)")
-                    elif reduction >= 10:
-                        self.logger.info("  Quality: Good (10-20 dB reduction)")
-                    else:
-                        self.logger.info("  Quality: Modest (<10 dB reduction)")
-                        self.logger.info("  Suggestion: Try use_iter=True or increase nkeep")
+                if reduction >= 20:
+                    message("info", "  Quality: Excellent (>20 dB reduction)")
+                elif reduction >= 10:
+                    message("info", "  Quality: Good (10-20 dB reduction)")
+                else:
+                    message("info", "  Quality: Modest (<10 dB reduction)")
+                    message("info", "  Suggestion: Try use_iter=True or increase nkeep")
 
-                if 'snr_after' in zapline_meta:
-                    snr = zapline_meta['snr_after']
-                    self.logger.info(f"  Post-Zapline SNR: {snr:.2f}")
+            if 'snr_after' in zapline_meta:
+                snr = zapline_meta['snr_after']
+                message("info", f"  Post-Zapline SNR: {snr:.2f}")
+        else:
+            message("warning", "No zapline metadata found")
