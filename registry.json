@@ -51,6 +51,12 @@
       "description": "Demo task for autoreject processing block with ERP data"
     },
     {
+      "name": "Zapline_Demo",
+      "path": "tasks/testing/Zapline_Demo.py",
+      "category": "testing",
+      "description": "Demo task for zapline DSS-based line noise removal block"
+    },
+    {
       "name": "ASSR_40Hz",
       "path": "tasks/auditory/ASSR_40Hz.py",
       "category": "auditory",
