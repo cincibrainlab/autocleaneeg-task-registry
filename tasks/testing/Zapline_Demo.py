@@ -11,6 +11,8 @@ Registry: blocks/signal_processing/zapline
 
 from __future__ import annotations
 
+import json
+
 from autoclean.core.task import Task
 from autoclean.utils.logging import message
 from autoclean.utils.database import get_run_record
@@ -171,7 +173,7 @@ class Zapline_Demo(Task):
 
         # Generate before/after PSD comparison plots
         if hasattr(self, 'pre_zapline_raw') and self.raw is not None:
-            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw, report_subdir="zapline")
+            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw)
 
         # The zapline block automatically logs quality metrics
         # including power reduction and SNR improvement
@@ -181,6 +183,16 @@ class Zapline_Demo(Task):
         zapline_meta = run_record.get('metadata', {}).get('step_zapline', {})
 
         if zapline_meta:
+            # Save metadata to JSON file in reports folder
+            basename = self.config["unprocessed_file"].stem
+            metadata_path = self._resolve_report_path("zapline", f"{basename}_zapline_metadata.json")
+
+            with open(metadata_path, 'w') as f:
+                json.dump(zapline_meta, f, indent=2)
+
+            message("info", f"Zapline metadata saved to: {metadata_path}")
+
+            # Display quality metrics
             message("info", "Zapline Quality Metrics:")
             message("info", f"  Block version: {zapline_meta.get('source_commit', 'unknown')[:8]}")
             message("info", f"  Line frequency: {zapline_meta.get('fline')} Hz")
