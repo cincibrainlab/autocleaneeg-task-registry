@@ -28,6 +28,18 @@
       "status": "stable"
     },
     {
+      "name": "zapline",
+      "category": "signal_processing",
+      "path": "blocks/signal_processing/zapline",
+      "version": "1.0.0",
+      "description": "Zapline DSS-based line noise removal using Denoising Source Separation for removing power line artifacts from EEG/MEG data",
+      "tags": ["line-noise", "power-line", "50Hz", "60Hz", "zapline", "dss", "denoising", "artifact-removal", "spatial-filtering", "meegkit"],
+      "mixin_method": "apply_zapline",
+      "compatible_data_types": ["raw"],
+      "processing_stages": ["post_filtering", "pre_ica", "post_ica"],
+      "status": "stable"
+    },
+    {
       "name": "fooof_analysis",
       "category": "analysis",
       "path": "blocks/analysis/fooof_analysis",
