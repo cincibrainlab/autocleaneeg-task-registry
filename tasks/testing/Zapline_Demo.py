@@ -137,6 +137,9 @@ class Zapline_Demo(Task):
         self.assign_eog_channels()
         self.trim_edges()
 
+        # Save pre-zapline data for before/after comparison plots
+        self.pre_zapline_raw = self.raw.copy()
+
         # Step 2: Apply zapline processing block
         # This is the core step being tested
         # Zapline metadata will automatically log:
@@ -163,6 +166,10 @@ class Zapline_Demo(Task):
 
     def generate_reports(self) -> None:
         """Generate reports showing zapline effectiveness."""
+
+        # Generate before/after PSD comparison plots
+        if hasattr(self, 'pre_zapline_raw') and self.raw is not None:
+            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw)
 
         # The zapline block automatically logs quality metrics
         # including power reduction and SNR improvement
@@ -192,6 +199,3 @@ class Zapline_Demo(Task):
                 if 'snr_after' in zapline_meta:
                     snr = zapline_meta['snr_after']
                     self.logger.info(f"  Post-Zapline SNR: {snr:.2f}")
-
-        # Note: For detailed spectral analysis, examine the PSD plots
-        # in the derivatives folder showing before/after comparison
