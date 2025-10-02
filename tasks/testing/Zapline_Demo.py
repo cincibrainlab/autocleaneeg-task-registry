@@ -12,13 +12,11 @@ Registry: blocks/signal_processing/zapline
 from __future__ import annotations
 
 from autoclean.core.task import Task
-from autoclean.utils.logging import message
-from autoclean.utils.database import get_run_record
 
 
 config = {
     "schema_version": "2025.09",
-    "montage": {"enabled": True, "value": "GSN-HydroCel-129"},
+    "montage": {"enabled": True, "value": "GSN-HydroCel-128"},
     "move_flagged_files": False,
 
     # Basic preprocessing
@@ -30,7 +28,7 @@ config = {
             "h_freq": 100.0,
             # NOTE: No notch filter - Zapline will handle line noise
             "notch_freqs": None,
-            "notch_widths": None,  # Not used when notch_freqs is None
+            "notch_widths": None,  # Optional, not used when notch_freqs is None
         },
     },
     "drop_outerlayer": {"enabled": True, "value": []},
@@ -56,7 +54,7 @@ config = {
             # Iterative mode for thorough removal
             # False: Single pass (faster)
             # True: Iterative removal (more thorough)
-            "use_iter": False,
+            "use_iter": True,
 
             # Maximum iterations (only used if use_iter=True)
             "max_iter": 10,
@@ -74,9 +72,9 @@ config = {
     # Rereferencing
     "reference_step": {"enabled": True, "value": "average"},
 
-    # ICA (optional)
+    # ICA - DISABLED for isolated Zapline testing
     "ICA": {
-        "enabled": True,
+        "enabled": False,
         "value": {
             "method": "picard",
             "n_components": 0.99,
@@ -85,7 +83,7 @@ config = {
         },
     },
     "component_rejection": {
-        "enabled": True,
+        "enabled": False,
         "method": "icvision",
         "value": {
             "ic_flags_to_reject": ["muscle", "heart", "eog", "ch_noise"],
@@ -94,15 +92,15 @@ config = {
         },
     },
 
-    # Epoching (optional for testing)
+   # Epoching (creates regular 2-second epochs for resting data)
     "epoch_settings": {
         "enabled": True,
-        "value": {"tmin": -0.5, "tmax": 1.5},
+        "value": {"tmin": -1.0, "tmax": 1.0},
         "event_id": None,
-        "remove_baseline": {"enabled": True, "window": [None, 0.0]},
+        "remove_baseline": {"enabled": False, "window": [None, 0.0]},
         "threshold_rejection": {
-            "enabled": True,
-            "volt_threshold": {"eeg": 0.000150},
+            "enabled": False,
+            "volt_threshold": {"eeg": 0.000125},
         },
     },
 
@@ -111,21 +109,22 @@ config = {
 
 
 class Zapline_Demo(Task):
-    """Demo task for zapline processing block.
+    """Isolated demo task for zapline processing block.
 
     Processing pipeline:
     1. Import and basic preprocessing
     2. Apply zapline block (core step) - removes line noise
     3. Clean bad channels
     4. Rereference
-    5. ICA (optional)
-    6. Create epochs
-    7. Generate reports with spectral comparison
+    5. Create epochs
+    6. Generate reports with spectral comparison
 
     This task demonstrates the zapline block as a superior alternative
     to traditional notch filtering. Zapline preserves signal content at
     frequencies near line noise harmonics, making it ideal for high-density
     EEG arrays (>32 channels).
+
+    Note: ICA is disabled to provide isolated testing of Zapline effectiveness.
     """
 
     def run(self) -> None:
@@ -135,12 +134,13 @@ class Zapline_Demo(Task):
         self.import_raw()
         self.resample_data()
         self.filter_data()  # Note: No notch filter, Zapline handles it
+
+        # Store original for comparison
+        self.original_raw = self.raw.copy()
+
         self.drop_outer_layer()
         self.assign_eog_channels()
         self.trim_edges()
-
-        # Save pre-zapline data for before/after comparison plots
-        self.pre_zapline_raw = self.raw.copy()
 
         # Step 2: Apply zapline processing block
         # This is the core step being tested
@@ -157,50 +157,50 @@ class Zapline_Demo(Task):
         # Step 4: Rereference
         self.rereference_data()
 
-        # Step 5: ICA (optional)
-        self.run_ica()
+        # Step 5: ICA - DISABLED for isolated Zapline testing
+        # self.run_ica()
 
-        # Step 6: Create epochs (optional, for visualization)
-        self.create_eventid_epochs()
+        # Epoching with export
+        self.create_regular_epochs(export=True)  # Export epochs
 
-        # Step 7: Generate quality reports
+
+        # Step 6: Generate quality reports
         self.generate_reports()
 
     def generate_reports(self) -> None:
         """Generate reports showing zapline effectiveness."""
 
-        # Generate before/after PSD comparison plots
-        if hasattr(self, 'pre_zapline_raw') and self.raw is not None:
-            self.step_psd_topo_figure(self.pre_zapline_raw, self.raw)
-
         # The zapline block automatically logs quality metrics
         # including power reduction and SNR improvement
 
         # Check metadata for zapline results
-        run_record = get_run_record(self.config['run_id'])
-        zapline_meta = run_record.get('metadata', {}).get('step_zapline', {})
+        if hasattr(self, 'metadata'):
+            zapline_meta = self.metadata.get('step_zapline', {})
 
-        if zapline_meta:
-            # Display quality metrics (JSON is saved automatically by zapline mixin)
-            message("info", "Zapline Quality Metrics:")
-            message("info", f"  Block version: {zapline_meta.get('source_commit', 'unknown')[:8]}")
-            message("info", f"  Line frequency: {zapline_meta.get('fline')} Hz")
-            message("info", f"  Components removed: {zapline_meta.get('nkeep')}")
+            if zapline_meta:
+                self.logger.info("Zapline Quality Metrics:")
+                self.logger.info(f"  Block version: {zapline_meta.get('source_commit', 'unknown')[:8]}")
+                self.logger.info(f"  Line frequency: {zapline_meta.get('fline')} Hz")
+                self.logger.info(f"  Components removed: {zapline_meta.get('nkeep')}")
 
-            if 'reduction_db' in zapline_meta:
-                reduction = zapline_meta['reduction_db']
-                message("info", f"  Noise reduction: {reduction:.1f} dB")
+                if 'reduction_db' in zapline_meta:
+                    reduction = zapline_meta['reduction_db']
+                    self.logger.info(f"  Noise reduction: {reduction:.1f} dB")
 
-                if reduction >= 20:
-                    message("info", "  Quality: Excellent (>20 dB reduction)")
-                elif reduction >= 10:
-                    message("info", "  Quality: Good (10-20 dB reduction)")
-                else:
-                    message("info", "  Quality: Modest (<10 dB reduction)")
-                    message("info", "  Suggestion: Try use_iter=True or increase nkeep")
+                    if reduction >= 20:
+                        self.logger.info("  Quality: Excellent (>20 dB reduction)")
+                    elif reduction >= 10:
+                        self.logger.info("  Quality: Good (10-20 dB reduction)")
+                    else:
+                        self.logger.info("  Quality: Modest (<10 dB reduction)")
+                        self.logger.info("  Suggestion: Try use_iter=True or increase nkeep")
 
-            if 'snr_after' in zapline_meta:
-                snr = zapline_meta['snr_after']
-                message("info", f"  Post-Zapline SNR: {snr:.2f}")
-        else:
-            message("warning", "No zapline metadata found")
+                if 'snr_after' in zapline_meta:
+                    snr = zapline_meta['snr_after']
+                    self.logger.info(f"  Post-Zapline SNR: {snr:.2f}")
+
+        # Plot raw vs cleaned overlay using mixin method
+        # self.plot_raw_vs_cleaned_overlay(self.original_raw, self.raw)
+
+        # Plot PSD topography using mixin method
+        self.step_psd_topo_figure(self.original_raw, self.raw)
