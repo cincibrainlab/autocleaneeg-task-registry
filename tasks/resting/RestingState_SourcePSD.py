@@ -116,10 +116,7 @@ class RestingState_SourcePSD(Task):
         # Store original for comparison
         self.original_raw = self.raw.copy()
 
-        # BIDS-compliant paths
-        self.create_bids_path()
-
-        # Channel cleaning and referencing
+        # Channel cleaning and referencing (BIDS path already created in import_raw)
         self.clean_bad_channels()
         self.rereference_data()
 

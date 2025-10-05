@@ -113,18 +113,14 @@ class BiotrialResting1020(Task):
     
     def __init__(self, config: Dict[str, Any]):
         """Initialize the BiotrialResting1020 task.
-        
+
         Parameters
         ----------
         config : Dict[str, Any]
             Configuration dictionary from the pipeline
         """
-        # Initialize data containers
-        self.raw = None
-        self.original_raw = None
-        self.epochs = None
-        
         # Call parent initialization - IMPORTANT!
+        # Parent already initializes self.raw, self.epochs, self.original_raw
         super().__init__(config)
 
     def run(self) -> None:
@@ -148,11 +144,8 @@ class BiotrialResting1020(Task):
 
         # Store original for comparison
         self.original_raw = self.raw.copy()
-        
-        # Create BIDS-compliant paths and filenames
-        self.create_bids_path()
-        
-        # Channel cleaning
+
+        # Channel cleaning (BIDS path already created in import_raw)
         self.clean_bad_channels()
         
         # Re-referencing
