@@ -113,6 +113,14 @@ config = {
             'resample_freq': None,
             'max_memory_gb': 8.0
         }
+    },
+    'apply_source_psd': {
+        'enabled': True,
+        'value': {
+            'segment_duration': 80,
+            'n_jobs': 4,
+            'generate_plots': True
+        }
     }
 }
 
@@ -187,6 +195,9 @@ class BiotrialResting1020(Task):
 
         # Source localization - compute cortical sources from cleaned epochs
         self.apply_source_localization()
+
+        # Source-level PSD analysis - calculate ROI power spectra
+        self.apply_source_psd()
 
         # Generate visualization reports
         self.generate_reports()

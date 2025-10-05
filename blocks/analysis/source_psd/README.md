@@ -1,24 +1,44 @@
 # Source PSD Block
 
-**Version:** 1.0.0
+**Version:** 2.0.0
 **Category:** Analysis
 **Status:** Stable
 
 ## Overview
 
-The Source PSD block calculates power spectral density (PSD) from source-localized EEG data with region-of-interest (ROI) averaging. This analysis projects spectral patterns from 10,242 cortical vertices into 68 anatomical regions using the Desikan-Killiany atlas, enabling statistical analyses of brain rhythms across cortical areas.
+The Source PSD block calculates power spectral density (PSD) from source-localized EEG data with region-of-interest (ROI) averaging using the Desikan-Killiany atlas (68 cortical regions).
+
+**Version 2.0.0** introduces **dual-mode processing** for optimal performance and backward compatibility:
+
+### ROI-Optimized Mode (v2.0.0+)
+- **For:** Source localization v2.0.1+ output (68-channel ROI data)
+- **Processing:** Direct PSD calculation on 68 channels
+- **Speed:** ~10-30 seconds per subject
+- **Performance:** 10-20× faster than vertex-level mode
+- **Auto-detected:** When `self.source_eeg` exists
+
+### Vertex-Level Mode (v1.0.0 compatible)
+- **For:** Source localization v1.0.0 output (vertex STCs)
+- **Processing:** PSD on 20,484 vertices → parcellation to 68 ROIs
+- **Speed:** ~2-5 minutes per subject
+- **Compatibility:** Backward compatible with existing workflows
+- **Auto-detected:** When `self.stc` or `self.stc_list` exists
+
+**Both modes produce identical output formats** for seamless downstream analysis.
 
 ## What It Does
 
 Source-level PSD analysis performs:
-1. Welch's method PSD estimation on source vertices (0.5-45 Hz)
-2. Adaptive windowing (4s windows, 50% overlap) for spectral accuracy
-3. Parallel batch processing for computational efficiency
-4. ROI averaging using Desikan-Killiany atlas (68 cortical regions)
-5. Frequency band power extraction (8 bands: delta through gamma)
-6. Diagnostic visualizations (4-panel plots)
+1. **Automatic mode detection** (ROI-optimized vs vertex-level)
+2. **Welch's method PSD estimation** (0.5-45 Hz frequency range)
+3. **Adaptive windowing** (4s windows, 50% overlap) for spectral accuracy
+4. **ROI processing:**
+   - **ROI mode:** Direct calculation on 68 DK channels
+   - **Vertex mode:** Parallel batch processing → parcellation to 68 ROIs
+5. **Frequency band power extraction** (8 bands: delta through gamma)
+6. **Diagnostic visualizations** (4-panel plots)
 
-The block processes 10,242 source vertices and parcellates spectral features into anatomical ROIs, producing both frequency-resolved data and band power summaries suitable for group-level statistical analyses.
+The block automatically selects the optimal processing mode based on available data, producing frequency-resolved PSD and band power summaries suitable for group-level statistical analyses.
 
 ## When to Use
 
@@ -30,17 +50,39 @@ The block processes 10,242 source vertices and parcellates spectral features int
 - Spectral biomarkers for clinical populations
 
 **Requirements:**
-- Prior source localization (self.stc or self.stc_list must exist)
+- Prior source localization (v2.0.1+ or v1.0.0)
+  - v2.0.1+: `self.source_eeg` (68-channel ROI data)
+  - v1.0.0: `self.stc` or `self.stc_list` (vertex STCs)
 - Minimum 30 seconds of clean data (80s recommended)
-- fsaverage brain data (auto-downloaded if not present)
-- Adequate memory for parallel processing (8GB recommended)
+- fsaverage brain data (auto-downloaded if not present, vertex mode only)
+- Memory requirements:
+  - ROI mode: ~2-4 GB
+  - Vertex mode: ~8 GB recommended for parallel processing
 
 ## How It Works
 
 ### Algorithm
 
+**ROI-Optimized Mode (v2.0+):**
 ```
-Source Estimates (10,242 vertices × time)
+68-Channel ROI EEG (Raw or Epochs)
+         ↓
+Segment Selection (middle 80s for stationarity)
+         ↓
+MNE compute_psd() - Welch's Method
+    4s windows, 50% overlap, 0.5-45 Hz
+         ↓
+Frequency Band Integration
+    Delta (1-4), Theta (4-8), Alpha (8-13)
+    Beta (13-30), Gamma (30-45 Hz)
+         ↓
+Output: ROI × Frequency DataFrames
+Processing Time: ~10-30 seconds
+```
+
+**Vertex-Level Mode (v1.0):**
+```
+Source Estimates (10,242-20,484 vertices × time)
          ↓
 Variance Filtering (exclude low-variance vertices)
          ↓
@@ -50,10 +92,9 @@ Welch's Method PSD (4s windows, 50% overlap)
 ROI Parcellation (Desikan-Killiany atlas, 68 regions)
          ↓
 Frequency Band Integration
-    Delta (1-4), Theta (4-8), Alpha (8-13)
-    Beta (13-30), Gamma (30-45 Hz)
          ↓
 Output: ROI × Frequency DataFrames
+Processing Time: ~2-5 minutes
 ```
 
 ### Technical Details
@@ -249,19 +290,23 @@ frontal_alpha = psd_df[
 
 ## Performance
 
-**Computational Cost:**
-- Vertex-level PSD: ~2-5 minutes for 10,242 vertices (80s data, 4 jobs)
+**ROI-Optimized Mode (v2.0+):**
+- PSD calculation: ~5-15 seconds (68 channels)
+- Visualization: ~5-10 seconds
+- **Total:** ~10-30 seconds per subject
+- **Memory:** ~2-4 GB
+- **Speedup:** 10-20× faster than vertex mode
+
+**Vertex-Level Mode (v1.0):**
+- Vertex-level PSD: ~2-5 minutes (20,484 vertices, 80s data, 4 jobs)
 - ROI parcellation: ~10-20 seconds (68 ROIs)
 - Visualization: ~5-10 seconds
 - **Total:** ~3-8 minutes per subject
-
-**Memory Requirements:**
-- Source estimates: ~500 MB - 2 GB (depends on data length)
-- PSD computation: ~4-8 GB (parallel batches)
-- ROI DataFrames: ~5-50 MB
+- **Memory:** ~4-8 GB (parallel batches)
 
 **Optimization Tips:**
-- Increase `n_jobs` for faster processing (4-10 recommended)
+- **ROI mode automatically selected** when using source localization v2.0.1+
+- Vertex mode: Increase `n_jobs` for faster processing (4-10 recommended)
 - Reduce `segment_duration` for memory-constrained systems
 - Set `generate_plots=False` to skip visualization overhead
 - Use parquet format for efficient storage (5-10× smaller than CSV)
@@ -327,8 +372,19 @@ Source PSD enables:
 
 ## Troubleshooting
 
-### "No source estimates found"
-**Solution:** Apply source localization first (`self.apply_source_localization()`)
+### "No source data found"
+**Error:** `No source data found. Apply source localization first`
+
+**Solution:** Apply source localization before PSD calculation:
+```python
+# For source localization v2.0.1+ (creates self.source_eeg)
+self.apply_source_localization()
+psd_df, file_path = self.apply_source_psd()  # Uses ROI mode
+
+# For source localization v1.0.0 (creates self.stc/self.stc_list)
+self.apply_source_localization()
+psd_df, file_path = self.apply_source_psd()  # Uses vertex mode
+```
 
 ### "Insufficient data for PSD calculation"
 **Solution:**
@@ -375,8 +431,18 @@ Source PSD enables:
 
 ## Version History
 
-- **1.0.0** (2025-09-29): Initial release
-  - Welch's method PSD for source estimates
+- **2.0.0** (2025-10-05): Dual-mode release
+  - **NEW:** ROI-optimized mode for source localization v2.0.1+ (68-channel direct processing)
+  - **NEW:** Automatic mode detection (self.source_eeg vs self.stc/self.stc_list)
+  - **NEW:** 10-20× performance improvement in ROI mode (~30s vs 2-5min)
+  - Maintains full backward compatibility with v1.0.0 vertex-level mode
+  - Identical output format for both modes
+  - Enhanced metadata with processing mode information
+  - Added calculate_roi_psd() function
+  - Updated documentation with dual-mode guidance
+
+- **1.0.0** (2025-09-29): Initial vertex-level release
+  - Welch's method PSD for source estimates (20,484 vertices)
   - ROI averaging with Desikan-Killiany atlas
   - Parallel batch processing
   - Band power extraction (8 frequency bands)
