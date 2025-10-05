@@ -104,6 +104,16 @@ config = {
                 'eeg': 0.000125
             }
         }
+    },
+    'apply_source_localization': {
+        'enabled': True,
+        'value': {
+            'method': 'MNE',
+            'lambda2': 0.111,
+            'montage': 'standard_1020',
+            'resample_freq': None,
+            'max_memory_gb': 8.0
+        }
     }
 }
 
@@ -172,9 +182,12 @@ class BiotrialResting1020(Task):
         
         # Detect outlier epochs
         self.detect_outlier_epochs()
-        
+
         # Clean epochs using GFP with export
-        self.gfp_clean_epochs() 
+        self.gfp_clean_epochs()
+
+        # Source localization - compute cortical sources from cleaned epochs
+        self.apply_source_localization()
 
         # Generate visualization reports
         self.generate_reports()
