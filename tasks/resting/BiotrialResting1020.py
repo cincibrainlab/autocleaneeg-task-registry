@@ -106,11 +106,10 @@ config = {
         }
     },
     'apply_source_localization': {
-        'enabled': True,
+        'enabled': False,  # TODO: Enable after fixing v2.0.0 montage handling
         'value': {
             'method': 'MNE',
             'lambda2': 0.111,
-            'montage': 'standard_1020',
             'resample_freq': None,
             'max_memory_gb': 8.0
         }
