@@ -30,7 +30,7 @@ Pull the latest version of the block from the registry or copy the files in this
 - `README.md`
 - `MIGRATION_GUIDE.md`
 
-No additional "_new" or "_old" files are required; the repo already retains archival copies (`algorithm_old.py`, `manifest_old.json`, `mixin_old.py`) for reference.
+The v1.0.0 files are preserved in git history (commit `004da4e` and earlier) if rollback is needed.
 
 ## Configuration Changes
 
@@ -82,12 +82,13 @@ The block determines `{subject}` from the task configuration (preferring `unproc
 
 ## Rollback Strategy
 
-If you need to revert temporarily:
+If you need to revert to v1.0.0 temporarily, restore the files from git history:
 
 ```bash
-cp blocks/analysis/source_localization/mixin_old.py blocks/analysis/source_localization/mixin.py
-cp blocks/analysis/source_localization/algorithm_old.py blocks/analysis/source_localization/algorithm.py
-cp blocks/analysis/source_localization/manifest_old.json blocks/analysis/source_localization/manifest.json
+# Restore v1.0.0 files from git history (commit 004da4e)
+git checkout 004da4e -- blocks/analysis/source_localization/algorithm.py
+git checkout 004da4e -- blocks/analysis/source_localization/mixin.py
+git checkout 004da4e -- blocks/analysis/source_localization/manifest.json
 ```
 
 Remember to restore any configuration changes (e.g., re-enable `convert_to_eeg`) that the legacy block expects.
