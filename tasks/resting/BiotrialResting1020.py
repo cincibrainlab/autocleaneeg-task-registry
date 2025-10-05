@@ -135,7 +135,7 @@ class BiotrialResting1020(Task):
         # Drop reference electrodes (A1=left mastoid, A2=right mastoid)
         # These were the recording reference, not independent brain signals.
         # Since we use average reference, they're excluded from all analysis.
-        self.set_channel_types({"A1": "misc", "A2": "misc"}, drop=True)
+        self.set_channel_types(ch_types_dict={"A1": "misc", "A2": "misc"}, drop=True)
 
         # Basic preprocessing steps
         self.resample_data()
