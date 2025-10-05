@@ -1,0 +1,148 @@
+{
+  "name": "source_localization",
+  "version": "2.0.0",
+  "description": "MNE source localization using autocleaneeg-eeg2source package - always outputs 68 Desikan-Killiany atlas regions",
+  "author": "AutoCleanEEG Team",
+  "maintainer": "ernest.pedapati@cchmc.org",
+  "license": "MIT",
+  "category": "analysis",
+
+  "api": {
+    "mixin_class": "SourceLocalizationMixin",
+    "mixin_method": "apply_source_localization",
+    "config_key": "apply_source_localization",
+    "schema_function": "source_localization_descriptor"
+  },
+
+  "dependencies": {
+    "python": ">=3.9,<3.13",
+    "packages": {
+      "mne": ">=1.6.0",
+      "numpy": ">1.24.4",
+      "autocleaneeg-eeg2source": ">=0.3.7"
+    },
+    "autocleaneeg-pipeline": ">=3.0.0",
+    "fsaverage_data": "required"
+  },
+
+  "compatibility": {
+    "data_types": ["raw", "epochs"],
+    "processing_stages": ["post_ica", "post_filtering", "post_epoching"],
+    "min_channels": 19,
+    "requires_montage": true,
+    "requires_reference": false
+  },
+
+  "computational_requirements": {
+    "memory_gb": 4,
+    "estimated_time_minutes": "2-5 per subject",
+    "cpu_intensive": true,
+    "supports_parallel": false
+  },
+
+  "outputs": {
+    "primary": {
+      "type": "Raw or Epochs",
+      "format": "EEGLAB .set file with 68 channels",
+      "saved_to": "derivatives/source_localization/",
+      "description": "68-channel EEG data representing Desikan-Killiany atlas regions",
+      "includes": [
+        "{subject}_dk_regions.set: EEGLAB file with 68 ROI time courses",
+        "{subject}_region_info.csv: ROI metadata (names, hemispheres, positions)"
+      ]
+    },
+    "metadata": {
+      "n_roi_channels": "integer (always 68)",
+      "atlas": "string (Desikan-Killiany)",
+      "method": "string (MNE)",
+      "lambda2": "float (regularization parameter)",
+      "montage": "string (EEG montage used)",
+      "sfreq": "float (sampling frequency)",
+      "package": "string (autocleaneeg-eeg2source)"
+    }
+  },
+
+  "parameters": {
+    "method": {
+      "type": "string",
+      "default": "MNE",
+      "options": ["MNE"],
+      "description": "Inverse solution method (only MNE currently supported)"
+    },
+    "lambda2": {
+      "type": "float",
+      "default": 0.111,
+      "description": "Regularization parameter (1/SNR²)"
+    },
+    "montage": {
+      "type": "string",
+      "default": "GSN-HydroCel-129",
+      "description": "EEG montage name"
+    },
+    "resample_freq": {
+      "type": "float",
+      "default": null,
+      "description": "Target sampling frequency (null = keep original)"
+    },
+    "max_memory_gb": {
+      "type": "float",
+      "default": 8.0,
+      "description": "Maximum memory usage in GB"
+    }
+  },
+
+  "references": [
+    {
+      "name": "Minimum norm estimates",
+      "citation": "Hämäläinen MS & Ilmoniemi RJ (1994). Interpreting magnetic fields of the brain: minimum norm estimates. Medical & Biological Engineering & Computing, 32(1), 35-42.",
+      "doi": "10.1007/BF02512476"
+    },
+    {
+      "name": "MNE-Python",
+      "url": "https://mne.tools/",
+      "citation": "Gramfort A, et al. (2013). MEG and EEG data analysis with MNE-Python. Frontiers in Neuroscience, 7, 267.",
+      "doi": "10.3389/fnins.2013.00267"
+    },
+    {
+      "name": "Desikan-Killiany Atlas",
+      "citation": "Desikan RS, et al. (2006). An automated labeling system for subdividing the human cerebral cortex on MRI scans into gyral based regions of interest. NeuroImage, 31(3), 968-980.",
+      "doi": "10.1016/j.neuroimage.2006.01.021"
+    },
+    {
+      "name": "autocleaneeg-eeg2source package",
+      "url": "https://pypi.org/project/autocleaneeg-eeg2source/",
+      "citation": "AutoClean EEG2Source - EEG source localization with DK atlas regions"
+    }
+  ],
+
+  "tags": ["source-localization", "inverse-solution", "cortical-mapping", "mne", "fsaverage", "minimum-norm", "desikan-killiany"],
+
+  "registry": {
+    "url": "https://registry.autocleaneeg.org/blocks/source_localization",
+    "documentation_url": "https://docs.autocleaneeg.org/blocks/source_localization",
+    "source_url": "https://github.com/cincibrainlab/autocleaneeg-task-registry/tree/main/blocks/analysis/source_localization"
+  },
+
+  "changelog": {
+    "2.0.0": {
+      "date": "2025-10-05",
+      "changes": [
+        "Migrated to autocleaneeg-eeg2source PyPI package",
+        "Now always outputs 68 DK atlas regions (no raw STCs)",
+        "Removed convert_to_eeg parameter (always enabled)",
+        "Improved memory management via MemoryManager",
+        "Better EOG channel handling",
+        "Simplified API - seamless drop-in replacement"
+      ]
+    },
+    "1.0.0": {
+      "date": "2025-09-29",
+      "changes": [
+        "Initial release with custom implementation"
+      ]
+    }
+  },
+
+  "created_at": "2025-09-29T23:55:00Z",
+  "updated_at": "2025-10-05T00:00:00Z"
+}
