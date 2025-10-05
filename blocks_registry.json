@@ -1,7 +1,7 @@
 {
   "version": 1,
   "commit": "local-snapshot",
-  "updated_at": "2025-10-05T17:29:13.878139+00:00",
+  "updated_at": "2025-10-05T18:54:07.534436+00:00",
   "blocks": [
     {
       "name": "fooof_periodic",
@@ -37,7 +37,7 @@
       "name": "source_localization",
       "category": "analysis",
       "path": "blocks/analysis/source_localization",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "description": "MNE source localization using autocleaneeg-eeg2source package - always outputs 68 Desikan-Killiany atlas regions",
       "tags": [
         "source-localization",
@@ -99,8 +99,7 @@
         "channel-interpolation",
         "bad-epoch-detection"
       ],
-      "mixin_method": "apply_autoreject",
-      "status": "stable"
+      "mixin_method": "apply_autoreject"
     },
     {
       "name": "wavelet_threshold",
