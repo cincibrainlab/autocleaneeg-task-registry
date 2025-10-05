@@ -13,6 +13,8 @@ import tempfile
 import shutil
 import os
 
+import warnings
+
 import mne
 
 # Import from PyPI package
@@ -242,7 +244,7 @@ class SourceLocalizationMixin:
                 # Copy output files to derivatives directory
                 final_file = output_dir / f"{subject_id}_dk_regions.set"
                 final_fdt = output_dir / f"{subject_id}_dk_regions.fdt"
-                region_info_src = Path(tmpdir) / f"temp_input_region_info.csv"
+                region_info_src = Path(tmpdir) / "temp_input_region_info.csv"
                 region_info_dst = output_dir / f"{subject_id}_region_info.csv"
 
                 # Copy .set file
@@ -260,6 +262,24 @@ class SourceLocalizationMixin:
                 # Store results in task object
                 self.source_eeg = source_data
                 self.source_eeg_file = str(final_file)
+
+                # Legacy attributes: make absence explicit for downstream callers
+                self.stc = None
+                self.stc_list = None
+                if hasattr(self, "message"):
+                    self.message(
+                        "warning",
+                        (
+                            "Legacy STC outputs are no longer generated. "
+                            "Use self.source_eeg (68 DK ROIs)."
+                        ),
+                    )
+                else:
+                    warnings.warn(
+                        "Legacy STC outputs are no longer generated. "
+                        "Use source-localized ROI EEG data instead.",
+                        stacklevel=2,
+                    )
 
                 if hasattr(self, "message"):
                     self.message(

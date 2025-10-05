@@ -1,224 +1,97 @@
 # Migration Guide: Source Localization v2.0.0
 
-This guide explains how to migrate to version 2.0.0 of the source localization block, which now uses the `autocleaneeg-eeg2source` PyPI package.
+This guide explains how to upgrade from the legacy v1.x block to version 2.0.0, which now relies on the `autocleaneeg-eeg2source` PyPI package and always produces 68 Desikan–Killiany (DK) ROI channels saved to the derivatives folder.
 
-## What Changed?
+## Summary of Changes
 
-### Version 1.0.0 (Old)
-- Custom implementation with duplicate code
-- Optional conversion to 68 DK regions (`convert_to_eeg=True`)
-- Returns STC objects by default
-- Manual EOG channel handling
+| Feature | v1.x | v2.0.0 |
+|---------|------|--------|
+| Core implementation | Custom, duplicated from pipeline | Delegates to `autocleaneeg-eeg2source` |
+| Default output | MNE `SourceEstimate` (STC) | 68-channel ROI EEG (`Raw`/`Epochs`) |
+| Optional conversion | `convert_to_eeg=True` | Always on |
+| Derivative files | Optional, under `source_localization_eeg/` | Mandatory, under `derivatives/source_localization/` |
+| Memory handling | None | `MemoryManager` (configurable cap) |
+| EOG handling | Manual | Automatic removal |
 
-### Version 2.0.0 (New)
-- Uses `autocleaneeg-eeg2source` PyPI package
-- **Always** outputs 68 DK atlas regions
-- No STC objects - streamlined output
-- Automatic EOG channel handling
-- Better memory management
+## Prerequisites
 
-## Installation Steps
+1. Install the PyPI package (if not already bundled):
+   ```bash
+   pip install autocleaneeg-eeg2source
+   ```
+2. Ensure MNE can locate the `fsaverage` dataset (download occurs automatically on first run).
 
-### 1. Install the PyPI Package
+## Updating the Block Files
 
-```bash
-pip install autocleaneeg-eeg2source
-```
+Pull the latest version of the block from the registry or copy the files in this directory into your deployment. Version 2.0.0 consists of:
+- `manifest.json`
+- `mixin.py`
+- `algorithm.py`
+- `README.md`
+- `MIGRATION_GUIDE.md`
 
-### 2. Replace Block Files
+No additional "_new" or "_old" files are required; the repo already retains archival copies (`algorithm_old.py`, `manifest_old.json`, `mixin_old.py`) for reference.
 
-```bash
-cd /Volumes/braindata/autocleaneeg-repos/autocleaneeg-task-registry/blocks/analysis/source_localization
+## Configuration Changes
 
-# Backup old files
-cp mixin.py mixin_old.py
-cp algorithm.py algorithm_old.py
-cp manifest.json manifest_old.json
+Remove the legacy options (`convert_to_eeg`, `pick_ori`, `n_jobs`) from your task configs. The new block exposes the following optional parameters:
 
-# Replace with new files
-mv mixin_new.py mixin.py
-mv algorithm_new.py algorithm.py
-mv manifest_new.json manifest.json
-```
-
-### 3. Update Your Task Config (if needed)
-
-#### Old Config (v1.0.0)
 ```python
-config = {
-    "apply_source_localization": {
-        "enabled": True,
-        "value": {
-            "method": "MNE",
-            "lambda2": 0.111,
-            "convert_to_eeg": True  # This parameter is REMOVED
-        }
+"apply_source_localization": {
+    "enabled": True,
+    "value": {
+        "method": "MNE",           # currently fixed
+        "lambda2": 0.111,
+        "montage": "GSN-HydroCel-129",
+        "resample_freq": None,
+        "max_memory_gb": 8.0
     }
 }
 ```
 
-#### New Config (v2.0.0)
-```python
-config = {
-    "apply_source_localization": {
-        "enabled": True,
-        "value": {
-            "method": "MNE",
-            "lambda2": 0.111,
-            "montage": "GSN-HydroCel-129"  # Now configurable
-            # convert_to_eeg removed - always outputs 68 regions
-        }
-    }
-}
-```
+If you omit the `value` dictionary, all defaults apply.
 
-## API Compatibility
+## Downstream Code Adjustments
 
-### Good News: Zero Code Changes Needed! 🎉
+Because `self.stc` / `self.stc_list` are no longer produced, downstream blocks must read ROI data via `self.source_eeg`:
 
-The mixin API is **100% backward compatible**:
+- **PSD / Connectivity / FOOOF**: update mixins to accept ROI-level `Raw` or `Epochs` objects. In most cases this means swapping STC-specific utilities for channel-based calculations.
+- **Custom scripts**: replace any direct access to `SourceEstimate` attributes with ROI channel operations (e.g., `data.get_data()` on the returned `Raw`/`Epochs`).
 
-```python
-# This still works exactly the same
-class MyTask(Task):
-    def run(self):
-        self.import_raw()
-        self.create_regular_epochs()
+During the transition the mixin sets `self.stc` and `self.stc_list` to `None` and emits a warning to catch missed updates.
 
-        # No changes needed!
-        source_data = self.apply_source_localization()
+## Output Location
 
-        # source_data now has 68 channels (DK regions)
-        # self.source_eeg_file points to saved .set file
-```
-
-### What's Different?
-
-**Output Format:**
-- **Before:** Returns STC object (10,242 vertices) unless `convert_to_eeg=True`
-- **After:** Always returns 68-channel MNE object (DK regions)
-
-**Files Saved:**
-- `{subject}_dk_regions.set` - 68-channel EEGLAB file
-- `{subject}_region_info.csv` - Region metadata
-
-## Testing the Migration
-
-### Test Script
-
-```python
-from autoclean.core.task import Task
-
-config = {
-    "schema_version": "2025.09",
-    "apply_source_localization": {
-        "enabled": True,
-        "value": {
-            "method": "MNE",
-            "lambda2": 0.111,
-            "montage": "GSN-HydroCel-129"
-        }
-    }
-}
-
-class TestSourceLoc(Task):
-    def run(self):
-        self.import_raw()
-        self.resample_data()
-        self.filter_data()
-        self.create_regular_epochs()
-
-        # Apply source localization
-        source_epochs = self.apply_source_localization()
-
-        # Verify output
-        print(f"Output channels: {source_epochs.info['nchan']}")  # Should be 68
-        print(f"Channel names: {source_epochs.ch_names[:5]}")     # DK region names
-        print(f"Saved to: {self.source_eeg_file}")
-
-task = TestSourceLoc("your_file.set", config=config)
-task.run()
-```
-
-### Expected Output
+Every run writes the following files:
 
 ```
-=== Applying Source Localization ===
-Using autocleaneeg-eeg2source package
-Method: MNE, lambda2: 0.111
-Input: Epochs, montage: GSN-HydroCel-129
-Exporting to temporary file for processing...
-Processing with source localization...
-Loading 68-region output...
-✓ Source localization complete: 68 DK regions
-Saved to: derivatives/source_localization/subject_dk_regions.set
-
-Output channels: 68
-Channel names: ['bankssts-lh', 'bankssts-rh', 'caudalanteriorcingulate-lh', ...]
-Saved to: derivatives/source_localization/subject_dk_regions.set
+derivatives/source_localization/
+├── {subject}_dk_regions.set
+├── {subject}_dk_regions.fdt
+└── {subject}_region_info.csv
 ```
 
-## Troubleshooting
+The block determines `{subject}` from the task configuration (preferring `unprocessed_file`, `subject_id`, `base_fname`, `original_fname`) and falls back to the task’s file stem. If no `derivatives_dir` is specified, the mixin uses `<task_dir>/derivatives/source_localization/`.
 
-### Import Error
+## Validation Checklist
 
-**Problem:**
-```
-ImportError: autocleaneeg-eeg2source package not found
-```
+1. Run a representative task (e.g., `SourceLocalization_Epochs`) and verify that the 68-channel file appears in the derivatives folder.
+2. Inspect the log or `self.source_eeg.info` to confirm `nchan == 68` and DK ROI names.
+3. Execute downstream PSD/connectivity pipelines to ensure they accept the ROI data.
+4. Monitor memory usage on large files; adjust `max_memory_gb` as needed.
 
-**Solution:**
-```bash
-pip install autocleaneeg-eeg2source
-```
+## Rollback Strategy
 
-### Different Results
-
-**Q:** Why do my results look different from v1.0.0?
-
-**A:** If you were using `convert_to_eeg=False` in v1.0.0 (getting STCs), you'll now get 68 DK regions instead. This is the intended behavior - the new version always produces region-level data for consistency and ease of use.
-
-### Need Raw STCs?
-
-**Q:** I need raw source estimates (10,242 vertices), not 68 regions!
-
-**A:** For advanced use cases requiring raw STCs, use the standalone package directly:
-
-```python
-from autoclean_eeg2source.core.converter import SequentialProcessor
-
-# This gives you more control but requires manual file handling
-processor = SequentialProcessor()
-# ... custom processing
-```
-
-Or modify the package to optionally return STCs before conversion.
-
-## Benefits of the New Version
-
-✅ **Single source of truth** - one maintained codebase
-✅ **Easier updates** - `pip install -U autocleaneeg-eeg2source`
-✅ **Better memory management** - MemoryManager class
-✅ **Automatic EOG handling** - detects and removes EOG channels
-✅ **Consistent results** - same algorithm everywhere
-✅ **Simpler output** - always 68 DK regions
-
-## Rollback (if needed)
-
-If you need to rollback:
+If you need to revert temporarily:
 
 ```bash
-cd /Volumes/braindata/autocleaneeg-repos/autocleaneeg-task-registry/blocks/analysis/source_localization
-
-# Restore old files
-cp mixin_old.py mixin.py
-cp algorithm_old.py algorithm.py
-cp manifest_old.json manifest.json
-
-# Uninstall package (optional)
-pip uninstall autocleaneeg-eeg2source
+cp blocks/analysis/source_localization/mixin_old.py blocks/analysis/source_localization/mixin.py
+cp blocks/analysis/source_localization/algorithm_old.py blocks/analysis/source_localization/algorithm.py
+cp blocks/analysis/source_localization/manifest_old.json blocks/analysis/source_localization/manifest.json
 ```
 
-## Questions?
+Remember to restore any configuration changes (e.g., re-enable `convert_to_eeg`) that the legacy block expects.
 
-Contact: ernest.pedapati@cchmc.org
+## Support
+
+For questions or to report issues, contact the AutoCleanEEG maintainers or open a ticket in the task registry repository.
