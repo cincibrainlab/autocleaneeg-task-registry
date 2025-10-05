@@ -267,8 +267,8 @@ class SourcePSDMixin:
                     output_dir = str(output_dir)
                 elif "output_dir" in config:
                     output_dir = config["output_dir"]
-                if "subject_id" in config:
-                    # Get subject ID from config - use same method as export functions
+
+                # Get subject ID from config - use same method as export functions
                 if "unprocessed_file" in config:
                     subject_id = Path(config["unprocessed_file"]).stem
                 elif "subject_id" in config:
