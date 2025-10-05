@@ -106,7 +106,7 @@ config = {
         }
     },
     'apply_source_localization': {
-        'enabled': False,  # TODO: Enable after fixing v2.0.0 montage handling
+        'enabled': True,
         'value': {
             'method': 'MNE',
             'lambda2': 0.111,

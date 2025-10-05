@@ -1,6 +1,6 @@
 {
   "name": "source_localization",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MNE source localization using autocleaneeg-eeg2source package - always outputs 68 Desikan-Killiany atlas regions",
   "author": "AutoCleanEEG Team",
   "maintainer": "ernest.pedapati@cchmc.org",
@@ -29,7 +29,7 @@
     "data_types": ["raw", "epochs"],
     "processing_stages": ["post_ica", "post_filtering", "post_epoching"],
     "min_channels": 19,
-    "requires_montage": true,
+    "requires_montage": false,
     "requires_reference": false
   },
 
@@ -76,8 +76,8 @@
     },
     "montage": {
       "type": "string",
-      "default": "GSN-HydroCel-129",
-      "description": "EEG montage name"
+      "default": null,
+      "description": "EEG montage name (null = auto-detect from data)"
     },
     "resample_freq": {
       "type": "float",
@@ -124,6 +124,14 @@
   },
 
   "changelog": {
+    "2.0.1": {
+      "date": "2025-10-05",
+      "changes": [
+        "Fix: Make montage parameter optional (auto-detects from data)",
+        "Fix: Prevent re-applying montage when data already has positions",
+        "Compatible with data that already has montage set in preprocessing"
+      ]
+    },
     "2.0.0": {
       "date": "2025-10-05",
       "changes": [
@@ -144,5 +152,5 @@
   },
 
   "created_at": "2025-09-29T23:55:00Z",
-  "updated_at": "2025-10-05T00:00:00Z"
+  "updated_at": "2025-10-05T18:40:00Z"
 }

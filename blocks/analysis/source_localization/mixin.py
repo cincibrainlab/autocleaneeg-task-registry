@@ -52,7 +52,7 @@ class SourceLocalizationMixin:
         data: Union[mne.io.Raw, mne.Epochs, None] = None,
         method: str = "MNE",
         lambda2: float = 1.0 / 9.0,
-        montage: str = "GSN-HydroCel-129",
+        montage: Optional[str] = None,
         resample_freq: Optional[float] = None,
         max_memory_gb: float = 8.0,
         stage_name: str = "apply_source_localization",
@@ -71,7 +71,7 @@ class SourceLocalizationMixin:
             data: Optional Raw or Epochs object. If None, uses self.raw or self.epochs
             method: Source estimation method (currently only "MNE" supported in package)
             lambda2: Regularization parameter (default: 1/9 = 0.111)
-            montage: EEG montage name (default: "GSN-HydroCel-129")
+            montage: EEG montage name (default: None, auto-detect from data)
             resample_freq: Target sampling frequency (default: keep original)
             max_memory_gb: Maximum memory usage in GB (default: 8.0)
             stage_name: Name for saving and metadata tracking
@@ -148,6 +148,24 @@ class SourceLocalizationMixin:
             raise TypeError(
                 f"Data must be mne.io.Raw or mne.Epochs, got {type(data)}"
             )
+
+        # Auto-detect montage from data if not specified
+        if montage is None:
+            # Check if data has montage set
+            if data.get_montage() is not None:
+                detected_montage = data.get_montage()
+                # Get montage name if available, otherwise use 'unknown'
+                montage_name = getattr(detected_montage, 'kind', 'unknown')
+                if hasattr(self, "message"):
+                    self.message("info", f"Auto-detected montage from data: {montage_name}")
+                # Note: SequentialProcessor requires montage, but data already has positions
+                # We'll pass the detected name, but positions come from exported .set file
+                montage = montage_name if montage_name != 'unknown' else "standard_1020"
+            else:
+                # No montage on data, use default
+                montage = "standard_1020"
+                if hasattr(self, "message"):
+                    self.message("warning", "No montage detected, using default: standard_1020")
 
         try:
             # Log start
