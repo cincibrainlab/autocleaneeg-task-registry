@@ -59,6 +59,7 @@ See **[Task Catalog](https://cincibrainlab.github.io/autocleaneeg-task-registry/
 - **RestingState_WaveletOnly** - Wavelet-based denoising without ICA
 - **RestingEyesQuickCheck** - Quick quality check for resting data
 - **BiotrialResting1020** - Standard 10-20 montage workflow
+- **RestingState_SourcePSD** - Complete pipeline with MNE source localization and ROI PSD analysis
 
 ### Auditory (`tasks/auditory/`)
 - **ASSR_40Hz** - Auditory steady-state response at 40 Hz

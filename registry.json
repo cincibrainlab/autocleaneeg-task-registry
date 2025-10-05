@@ -33,6 +33,12 @@
       "description": "Biotrial resting-state with standard 10-20 montage"
     },
     {
+      "name": "RestingState_SourcePSD",
+      "path": "tasks/resting/RestingState_SourcePSD.py",
+      "category": "resting",
+      "description": "Complete resting-state pipeline with MNE source localization and ROI-level PSD analysis"
+    },
+    {
       "name": "WaveletBlock_Test",
       "path": "tasks/resting/WaveletBlock_Test.py",
       "category": "resting",
