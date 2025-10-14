@@ -75,6 +75,8 @@ See **[Task Catalog](https://cincibrainlab.github.io/autocleaneeg-task-registry/
 - **Mouse_XDAT_ASSR** - Mouse ASSR with correlation-based artifact rejection
 - **Mouse_XDAT_Chirp** - Mouse chirp with correlation-based artifact rejection
 - **Mouse_XDAT_Resting** - Mouse resting-state with correlation-based artifact rejection
+- **Mouse_ASSR_40Hz** - 40Hz ASSR task for mouse EEG with MEA30 montage and TTL pulse-based event detection
+- **Mouse_ASSR_80Hz** - 80Hz ASSR task for mouse EEG with MEA30 montage and TTL pulse-based event detection
 
 ## Task Schema Version
 
