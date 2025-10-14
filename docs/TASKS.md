@@ -18,6 +18,8 @@ Comprehensive directory of validated AutoClean EEG tasks organized by paradigm c
 | **Mouse_XDAT_ASSR** | Rodent | MEA30 | Mouse ASSR | No | Event (1.0s) |
 | **Mouse_XDAT_Chirp** | Rodent | MEA30 | Mouse chirp | No | Event (1.0s) |
 | **Mouse_XDAT_Resting** | Rodent | MEA30 | Mouse resting-state | No | Regular (2s) |
+| **Mouse_ASSR_40Hz** | Rodent | MEA30 | Mouse 40Hz ASSR | No | Event (1.0s) |
+| **Mouse_ASSR_80Hz** | Rodent | MEA30 | Mouse 80Hz ASSR | No | Event (1.0s) |
 
 ## Categories
 
@@ -131,6 +133,24 @@ Comprehensive directory of validated AutoClean EEG tasks organized by paradigm c
 - **ICA**: Disabled (uses correlation-based channel rejection)
 - **Epochs**: 2-second non-overlapping regular epochs
 - **Use Case**: Preclinical baseline neural activity
+
+**Mouse_ASSR_40Hz**
+- **Purpose**: Mouse 40Hz ASSR with TTL pulse event detection
+- **Montage**: MEA30 (30-channel microelectrode array)
+- **Filtering**: 1-100 Hz, notch 60/120 Hz
+- **ICA**: Disabled (optimized for rodent recordings)
+- **Epochs**: -0.2 to 0.8s around stimulus onset
+- **Event ID**: `assr_40hz: 1`
+- **Use Case**: Preclinical 40Hz auditory steady-state response studies
+
+**Mouse_ASSR_80Hz**
+- **Purpose**: Mouse 80Hz ASSR with TTL pulse event detection
+- **Montage**: MEA30 (30-channel microelectrode array)
+- **Filtering**: 1-100 Hz, notch 60/120 Hz
+- **ICA**: Disabled (optimized for rodent recordings)
+- **Epochs**: -0.2 to 0.8s around stimulus onset
+- **Event ID**: `assr_80hz: 1`
+- **Use Case**: Preclinical 80Hz auditory steady-state response studies
 
 ## Common Parameters
 
