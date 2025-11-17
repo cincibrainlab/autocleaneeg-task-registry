@@ -7,7 +7,6 @@ from autoclean.core.task import Task
 config = {
     "schema_version": "2025.09",
     "dataset_name": "GRAEL4K_P300",
-    "input_path": "",
     "montage": {"enabled": True, "value": "standard_1020"},
     "move_flagged_files": False,
     "resample_step": {"enabled": True, "value": 256},
