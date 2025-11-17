@@ -14,6 +14,7 @@ Comprehensive directory of validated AutoClean EEG tasks organized by paradigm c
 | **Chirp_Default** | Auditory | GSN-129 | Chirp stimulation | Yes (Infomax) | Event (1.0s) |
 | **BB_Long** | Auditory | GSN-129 | Broadband long-duration | Yes (Infomax) | Regular (2s) |
 | **HBCD_MMN** | Auditory | GSN-129 | HBCD mismatch negativity | Yes (FastICA) | Event (0.8s) |
+| **P300_Grael4K** | Auditory | Standard 10-20 | P300 oddball | Yes (Infomax) | Event (1.5s) |
 | **HBCD_VEP** | Visual | GSN-129 | HBCD visual evoked | Yes (FastICA) | Event (0.7s) |
 | **Mouse_XDAT_ASSR** | Rodent | MEA30 | Mouse ASSR | No | Event (1.0s) |
 | **Mouse_XDAT_Chirp** | Rodent | MEA30 | Mouse chirp | No | Event (1.0s) |
@@ -92,6 +93,15 @@ Comprehensive directory of validated AutoClean EEG tasks organized by paradigm c
 - **Epochs**: -0.2 to 0.6s around stimulus onset
 - **Event ID**: `standard: 1, deviant: 2`
 - **Use Case**: HBCD consortium standardized oddball protocol
+
+**P300_Grael4K**
+- **Purpose**: P300 oddball paradigm for Grael4K dataset
+- **Montage**: standard_1020 (10-20 system)
+- **Filtering**: 0.1-45 Hz, notch 50/60 Hz
+- **ICA**: Infomax (extended) with ICLabel rejection (threshold 0.3, muscle override 0.90)
+- **Epochs**: -0.5 to 1.0s around stimulus onset
+- **Event ID**: `Standard: 13, Target: 14`
+- **Use Case**: P300 event-related potential analysis, cognitive processing
 
 ### Visual (`tasks/visual/`)
 
