@@ -93,6 +93,12 @@
       "description": "HBCD study mismatch negativity protocol"
     },
     {
+      "name": "P300_Grael4K",
+      "path": "tasks/auditory/P300_Grael4K.py",
+      "category": "auditory",
+      "description": "P300 oddball paradigm for Grael4K dataset with standard 10-20 montage"
+    },
+    {
       "name": "HBCD_VEP",
       "path": "tasks/visual/HBCD_VEP.py",
       "category": "visual",
