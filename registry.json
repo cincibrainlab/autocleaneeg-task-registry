@@ -121,6 +121,18 @@
       "path": "tasks/rodent/Mouse_XDAT_Resting.py",
       "category": "rodent",
       "description": "Mouse resting-state with correlation-based artifact rejection"
+    },
+    {
+      "name": "Mouse_ASSR_40Hz",
+      "path": "tasks/rodent/Mouse_ASSR_40Hz.py",
+      "category": "rodent",
+      "description": "Mouse 40Hz ASSR with TTL pulse event detection (MEA30 montage)"
+    },
+    {
+      "name": "Mouse_ASSR_80Hz",
+      "path": "tasks/rodent/Mouse_ASSR_80Hz.py",
+      "category": "rodent",
+      "description": "Mouse 80Hz ASSR with TTL pulse event detection (MEA30 montage)"
     }
   ]
 }
