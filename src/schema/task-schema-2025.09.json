@@ -89,6 +89,8 @@
         "tmax": "number|null"
       },
       "event_id": "dict|null",
+      "strip_other_events": "bool (optional; default False)",
+      "allowed_events": "list|null (optional; defaults to event_id keys)",
       "remove_baseline": {
         "enabled": "bool",
         "window": "[start, end]|None"
