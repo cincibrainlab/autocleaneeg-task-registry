@@ -177,8 +177,7 @@ class BiotrialResting1020(Task):
         self.run_ica()
         
         self.classify_ica_components(
-            method='iclabel',
-            reject=True,  # Will use rejection settings from config
+            reject=True,  # method and rejection settings read from config
         )
         
         # Drop EOG channels after ICA processing
